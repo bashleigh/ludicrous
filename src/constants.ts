@@ -1,0 +1,8 @@
+export const CONTROLLER = 'CONTROLLER'
+export const PROVIDER = 'PROVIDER'
+export const PARAMETER = 'PARAMETER'
+export const METHOD = 'METHOD'
+export const PATH = 'PATH'
+export const HEADER = 'HEADER'
+export const AUTHENTICATE = 'AUTHENTICATE'
+export const INJECTABLES = 'INJECTABLES'
