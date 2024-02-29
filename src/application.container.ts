@@ -86,8 +86,6 @@ export class ApplicationContainer {
       }, {} as Context, () => {
       })
 
-      console.log('result', result)
-
       // response.write(result.body || result.message)
       // response.writeHead(result.statusCode)
       response.writeHead(result.statusCode)
