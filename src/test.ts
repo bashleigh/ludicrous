@@ -1,6 +1,6 @@
-import { Context } from "aws-lambda";
-import { Boot } from "./boot";
-import { Controller, Get, Param, Provide, Query } from "./decorators";
+import { Context } from 'aws-lambda'
+import { Boot } from './boot'
+import { Controller, Get, Param, Provide, Query } from './decorators'
 
 @Provide()
 class MyProvider {
@@ -11,9 +11,7 @@ class MyProvider {
 
 @Controller('my-test')
 class TestController {
-  constructor(
-    private readonly provider: MyProvider,
-  ) {}
+  constructor(private readonly provider: MyProvider) {}
 
   @Get('test')
   async myMethod() {
@@ -21,10 +19,7 @@ class TestController {
   }
 
   @Get('withparams/:param/:id')
-  async params(
-    @Param('id') id: string,
-    @Param('param') param: string,
-  ) {
+  async params(@Param('id') id: string, @Param('param') param: string) {
     return `with parameters [${id}] [${param}]`
   }
 
@@ -48,9 +43,7 @@ class TestController {
 
 @Controller('/cheese')
 class AnotherController {
-  constructor(
-    private readonly provider: MyProvider,
-  ) {}
+  constructor(private readonly provider: MyProvider) {}
 
   @Get()
   async myMethod() {
@@ -58,12 +51,8 @@ class AnotherController {
   }
 }
 
-const application = Boot.application({ 
-  providers: [
-    TestController,
-    MyProvider,
-    AnotherController,
-  ],
+const application = Boot.application({
+  providers: [TestController, MyProvider, AnotherController],
 })
 
 application.serve(3000)

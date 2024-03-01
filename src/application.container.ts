@@ -1,21 +1,21 @@
-import { APIGatewayProxyEvent, Context, Handler } from "aws-lambda";
-import { Provider, isTokenProvider, isValueProvider } from "./provider";
-import { INJECTABLES, PARAMETER } from "./constants";
-import { RouteMetadataContainer } from "./metadata.container";
-import { HttpException, NotFoundException } from "./exceptions";
+import { APIGatewayProxyEvent, Context, Handler } from 'aws-lambda'
+import { Provider, isTokenProvider, isValueProvider } from './provider'
+import { INJECTABLES, PARAMETER } from './constants'
+import { RouteMetadataContainer } from './metadata.container'
+import { HttpException, NotFoundException } from './exceptions'
 import http from 'http'
 import { match } from 'path-to-regexp'
-import { ArgumentMetadata } from "./decorators";
+import { ArgumentMetadata } from './decorators'
 
 export class ApplicationContainer {
   private readonly providers: { [s: string]: Provider } = {}
 
-  constructor(
-    private readonly routeLogging: boolean = true,
-  ) {}
+  constructor(private readonly routeLogging: boolean = true) {}
 
   add(provider: Provider) {
-    isValueProvider(provider) || isTokenProvider(provider) ? this.providers[provider.token] = provider : this.providers[provider.name] = provider
+    isValueProvider(provider) || isTokenProvider(provider)
+      ? (this.providers[provider.token] = provider)
+      : (this.providers[provider.name] = provider)
   }
 
   get<T extends any>(token: Function | string): T {
@@ -29,22 +29,25 @@ export class ApplicationContainer {
 
     const paramsInfo = Reflect.getOwnMetadata(INJECTABLES, providerClass)
 
-    const resolvedInjectables = (paramsInfo || []).map((param: { injectToken: string}) => this.get(param.injectToken))
+    const resolvedInjectables = (paramsInfo || []).map((param: { injectToken: string }) => this.get(param.injectToken))
 
     return new providerClass(...resolvedInjectables)
   }
 
-  private mapArgumentMetadataToValues({ name, type }: ArgumentMetadata, {
-    parameters,
-    query,
-    body,
-    identity,
-  }: {
-    parameters: {[s: string]: any},
-    query: {[s: string]: any} | null,
-    body: any,
-    identity: any,
-  }): any {
+  private mapArgumentMetadataToValues(
+    { name, type }: ArgumentMetadata,
+    {
+      parameters,
+      query,
+      body,
+      identity,
+    }: {
+      parameters: { [s: string]: any }
+      query: { [s: string]: any } | null
+      body: any
+      identity: any
+    },
+  ): any {
     switch (type) {
       case 'QUERY':
         return query ? query[name as string] || undefined : undefined
@@ -68,7 +71,6 @@ export class ApplicationContainer {
     console.log('route', route)
 
     try {
-
       if (!route) throw new NotFoundException()
 
       const controller = this.get<any>(route.controllerToken)
@@ -76,15 +78,17 @@ export class ApplicationContainer {
       // TODO add route logging and use condition this.routeLogging
       console.log('controller', controller[route.method])
 
-      const parameterMetadata: ArgumentMetadata[] = Reflect.getMetadata(`${PARAMETER}::${route.method.toString()}`, controller) || []
+      const parameterMetadata: ArgumentMetadata[] =
+        Reflect.getMetadata(`${PARAMETER}::${route.method.toString()}`, controller) || []
 
-      const args: {[s: string]: any}[] = parameterMetadata
-      .map((metadata) =>  this.mapArgumentMetadataToValues(metadata, {
-        parameters: route.match.params,
-        query,
-        body: event.body,
-        identity: undefined,
-      }))
+      const args: { [s: string]: any }[] = parameterMetadata.map((metadata) =>
+        this.mapArgumentMetadataToValues(metadata, {
+          parameters: route.match.params,
+          query,
+          body: event.body,
+          identity: undefined,
+        }),
+      )
 
       console.log('parameters', args)
 
@@ -95,7 +99,6 @@ export class ApplicationContainer {
       else return { statusCode: 200, body: result }
 
       throw new NotFoundException()
-
     } catch (error) {
       console.error(error)
       if (error instanceof HttpException) {
@@ -115,18 +118,23 @@ export class ApplicationContainer {
 
   serve(port: number = 3000) {
     console.log('serving from port', port)
-    return http.createServer(async (request, response) => {
-      //@ts-ignore
-    const [path, query] = request.url?.split('?')
-      const result = await this.handle({
-          path: path,
-          httpMethod: request.method,
-          queryStringParameters:  Object.fromEntries(new URLSearchParams(query)),
-        }, {} as Context, () => {
-      })
+    return http
+      .createServer(async (request, response) => {
+        //@ts-ignore
+        const [path, query] = request.url?.split('?')
+        const result = await this.handle(
+          {
+            path: path,
+            httpMethod: request.method,
+            queryStringParameters: Object.fromEntries(new URLSearchParams(query)),
+          },
+          {} as Context,
+          () => {},
+        )
 
-      response.writeHead(result.statusCode)
-      response.end(result.body || result.message)
-    }).listen(port)
+        response.writeHead(result.statusCode)
+        response.end(result.body || result.message)
+      })
+      .listen(port)
   }
 }

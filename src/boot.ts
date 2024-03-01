@@ -1,28 +1,32 @@
-import { CONTROLLER, METHOD, PATH } from "./constants";
-import { ApplicationContainer } from "./application.container";
-import { MetadataContainer, RouteMetadataContainer } from "./metadata.container";
+import { CONTROLLER, METHOD, PATH } from './constants'
+import { ApplicationContainer } from './application.container'
+import { MetadataContainer, RouteMetadataContainer } from './metadata.container'
 import { Provider, isConstructorProvider } from './provider'
-import { AuthenticationProvider } from "./authentication.provider";
-import { pathToRegexp, match } from "path-to-regexp";
+import { AuthenticationProvider } from './authentication.provider'
+import { pathToRegexp, match } from 'path-to-regexp'
 
 export interface ApplicationOptions {
-  bootLogging?: boolean,
-  routeLogging?: boolean,
+  bootLogging?: boolean
+  routeLogging?: boolean
 }
 
 export class Boot {
-  static application({ providers }: {
-    providers: Provider[],
-  }, { bootLogging, routeLogging }: ApplicationOptions = {
-    bootLogging: true,
-    routeLogging: true,
-  }) {
-
+  static application(
+    {
+      providers,
+    }: {
+      providers: Provider[]
+    },
+    { bootLogging, routeLogging }: ApplicationOptions = {
+      bootLogging: true,
+      routeLogging: true,
+    },
+  ) {
     const metadataContainer = new MetadataContainer(bootLogging)
     const routeMetadata = new RouteMetadataContainer(bootLogging)
     const container = new ApplicationContainer(routeLogging)
 
-    providers.forEach(provider => {
+    providers.forEach((provider) => {
       const isController = Reflect.hasOwnMetadata(CONTROLLER, provider)
       const isFunction = isConstructorProvider(provider)
 
@@ -38,11 +42,11 @@ export class Boot {
         const controllerToken = provider.name
         const methods = Reflect.ownKeys(prototype)
 
-        methods?.forEach(method => {
+        methods?.forEach((method) => {
           const methodMetadata = Reflect.getOwnMetadata(METHOD, prototype[method])
           const pathMetadata = Reflect.getOwnMetadata(PATH, prototype[method])
 
-          if (!methodMetadata) return 
+          if (!methodMetadata) return
 
           const controllerMetadata = Reflect.getOwnMetadata(CONTROLLER, provider)
 
