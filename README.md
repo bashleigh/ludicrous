@@ -51,12 +51,14 @@ import { Controller, Get } from '@reapit/ludicrous'
 
 @Controller('ludicrous')
 export class MyLudicrousController {
-  @Get()
+  @Get('speed')
   async getMethod() {
     return 'my example method'
   }
 }
 ```
+
+> This is now callable from `localhost:3000/ludicrous/speed`
 
 ### Adding controllers to the application
 
@@ -88,3 +90,10 @@ const application = Boot.application({
 })
 ```
 
+## Development
+
+### Build
+
+```bash
+$ yarn build
+```
