@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, Context, Handler } from 'aws-lambda'
 import { Provider, isTokenProvider, isValueProvider } from './provider'
-import { INJECTABLES, PARAMETER } from './constants'
+import { ARGUMENT, INJECTABLES } from './constants'
 import { RouteMetadataContainer } from './metadata.container'
 import { HttpException, NotFoundException } from './exceptions'
 import http from 'http'
@@ -90,7 +90,7 @@ export class ApplicationContainer {
     const path = event.path.replace(/^\//, '')
     const query = event.queryStringParameters
 
-    const route = routeMetadata.resolvePathToRouteMetadata(path, event.httpMethod.toLowerCase())
+    const route = routeMetadata.resolvePathToRouteMetadata(path, event.httpMethod.toUpperCase())
 
     console.log('route', route)
 
@@ -103,7 +103,7 @@ export class ApplicationContainer {
       console.log('controller', controller[route.method])
 
       const argumentMetadata: ArgumentMetadata[] =
-        Reflect.getMetadata(`${PARAMETER}::${route.method.toString()}`, controller) || []
+        Reflect.getMetadata(`${ARGUMENT}::${route.method.toString()}`, controller) || []
 
       const args: { [s: string]: any }[] = argumentMetadata.map((metadata) =>
         this.mapArgumentMetadataToValues(metadata, {

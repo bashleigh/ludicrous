@@ -36,15 +36,6 @@ export const HTTP_STATUS_CODE: { [key in HTTP_RESPONSE]: number } = {
   [HTTP_RESPONSE.INTERNAL_SERVER_ERROR]: 500,
 }
 
-export enum HTTP_METHOD {
-  GET,
-  POST,
-  PUT,
-  PATCH,
-  DELETE,
-  OPTIONS,
-}
-
 export abstract class HttpException extends Error {
   abstract httpRespsonse?: HTTP_RESPONSE
   get httpCode(): number {

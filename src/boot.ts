@@ -22,7 +22,7 @@ export class Boot {
       routeLogging: true,
     },
   ) {
-    const metadataContainer = new MetadataContainer(bootLogging)
+    // const metadataContainer = new MetadataContainer(bootLogging)
     const routeMetadata = new RouteMetadataContainer(bootLogging)
     const container = new ApplicationContainer(routeLogging)
 
@@ -30,11 +30,11 @@ export class Boot {
       const isController = Reflect.hasOwnMetadata(CONTROLLER, provider)
       const isFunction = isConstructorProvider(provider)
 
-      metadataContainer.add({
-        type: isController ? 'controller' : 'provider',
-        provider,
-        token: !isFunction ? provider.token : provider.constructor.name,
-      })
+      // metadataContainer.add({
+      //   type: isController ? 'controller' : 'provider',
+      //   provider,
+      //   token: !isFunction ? provider.token : provider.constructor.name,
+      // })
       container.add(provider)
 
       if (isFunction && isController) {
@@ -65,10 +65,10 @@ export class Boot {
       }
     })
 
-    container.add({
-      token: MetadataContainer.name,
-      useValue: metadataContainer,
-    })
+    // container.add({
+    //   token: MetadataContainer.name,
+    //   useValue: metadataContainer,
+    // })
 
     container.add({
       token: RouteMetadataContainer.name,

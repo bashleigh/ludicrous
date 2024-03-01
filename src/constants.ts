@@ -1,6 +1,7 @@
 export const CONTROLLER = 'CONTROLLER'
 export const PROVIDER = 'PROVIDER'
 export const PARAMETER = 'PARAMETER'
+export const ARGUMENT = 'ARGUMENT'
 export const METHOD = 'METHOD'
 export const PATH = 'PATH'
 export const HEADER = 'HEADER'
