@@ -2,7 +2,7 @@
 
 A tiny TypeScript http framework built specifically for lambda API gateway handling.
 
-<iframe src="https://giphy.com/embed/izspP6uMbMeti" width="480" height="254" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/community-playstation-xo-izspP6uMbMeti">via GIPHY</a></p>
+<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm1jOXh6cmNsbTRuY3k5dTlwcnpkZGR0eGNwcWp3OWs3OWU5N2dzdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/izspP6uMbMeti/giphy.gif" />
 
 ## Getting started
 
