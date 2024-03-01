@@ -1,4 +1,3 @@
-import { Context } from 'aws-lambda'
 import { Boot } from './boot'
 import { Controller, Get, Param, Provide, Query } from './decorators'
 

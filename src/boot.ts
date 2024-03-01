@@ -1,8 +1,8 @@
 import { CONTROLLER, METHOD, PATH } from './constants'
-import { ApplicationContainer } from './application.container'
+import { HttpApplicationContainer, DevHttpApplicationContainer } from './application.container'
 import { MetadataContainer, RouteMetadataContainer } from './metadata.container'
 import { Provider, isConstructorProvider } from './provider'
-import { AuthenticationProvider } from './authentication.provider'
+// import { AuthenticationProvider } from './authentication.provider'
 import { pathToRegexp, match } from 'path-to-regexp'
 
 export interface ApplicationOptions {
@@ -24,7 +24,8 @@ export class Boot {
   ) {
     // const metadataContainer = new MetadataContainer(bootLogging)
     const routeMetadata = new RouteMetadataContainer(bootLogging)
-    const container = new ApplicationContainer(routeLogging)
+    // TODO find a solution to conditionally change the imported class for development
+    const container = new DevHttpApplicationContainer(routeLogging)
 
     providers.forEach((provider) => {
       const isController = Reflect.hasOwnMetadata(CONTROLLER, provider)
@@ -75,7 +76,7 @@ export class Boot {
       useValue: routeMetadata,
     })
 
-    container.add(AuthenticationProvider)
+    // container.add(AuthenticationProvider)
 
     bootLogging && console.log('Application successfully booted')
 

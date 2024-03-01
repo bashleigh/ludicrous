@@ -1,6 +1,6 @@
 # Reapit Ludicrous 
 
-A tiny TypeScript http framework built specifically for lambda API gateway handling.
+A tiny TypeScript http-event handling framework built specifically for lambda API gateway handling.
 
 <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm1jOXh6cmNsbTRuY3k5dTlwcnpkZGR0eGNwcWp3OWs3OWU5N2dzdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/izspP6uMbMeti/giphy.gif" />
 
@@ -48,7 +48,6 @@ Below is an example of how controllers are defined within the application
 ```ts
 import { Controller, Get } from '@reapit/ludicrous'
 
-
 @Controller('ludicrous')
 export class MyLudicrousController {
   @Get('speed')
@@ -67,6 +66,81 @@ export class MyLudicrousController {
 const application = Boot.application({
   providers: [MyLudicrousController],
 })
+```
+
+### Controller Method Decorators
+
+### Controller Argument HTTP Decorators
+
+Available methods are 
+
+```ts
+import { Controller, Get, Post, Delete, Patch, Put } from '@reapit/ludicrous'
+
+@Controller('my-controller')
+export class TestController {
+  @Get()
+  getAll() {}
+
+  @Post()
+  create() {}
+
+  @Put()
+  update() {}
+
+  @Patch()
+  updatePartial() {}
+
+  @Delete()
+  delete() {}
+}
+```
+
+#### Param
+
+```ts
+import { Controller, Get, Param } from '@reapit/ludicrous'
+
+@Controller('my-controller')
+export class TestController {
+  @Get(':id')
+  method(@Param('id') id: string) {
+    
+  }
+}
+```
+
+This can then be populated when hitting `my-controller/my-id`
+
+#### Query
+
+```ts
+import { Controller, Get, Query } from '@reapit/ludicrous'
+
+@Controller('my-controller')
+export class TestController {
+  @Get(':id')
+  method(@Query('id') id?: string) {
+    
+  }
+}
+```
+This can then be populated when hitting `my-controller?id=my-id`
+
+#### Body
+
+Use the body parameter decorator to populate a given argument with the body of the request
+
+```ts
+import { Controller, Post, Body } from '@reapit/ludicrous'
+
+@Controller('my-controller')
+export class TestController {
+  @Post()
+  method(@Body() body: any) {
+    
+  }
+}
 ```
 
 ### Dependency Injection
@@ -90,10 +164,81 @@ const application = Boot.application({
 })
 ```
 
+### Providers
+
+A provider can be a class or object
+
+
+#### Defining a value provider
+
+A value provider is any value that is stored within the container using a token. The structure is as shown below
+
+```ts
+const myValueProvider: ValueProvider = {
+  token: 'my-token',
+  useValue: 'anything you want it to be',
+}
+```
+
+This can then be injected into a provider or controller like so
+
+```ts
+import { Provide, Inject } from '@reapit/ludicrous'
+
+@Provide()
+export class MyProvider {
+  constructor(
+    @Inject('my-token') private readonly myInjectedValue: string,
+  ) {}
+}
+```
+
+> Not that the `token` value from the ValueProvider object is passed to the `@Inject()` decorator
+
+Objects and classes can also be used
+
+```ts
+import { Boot, Provide, Inject } from '@reapit/ludicrous'
+
+class MyExample {}
+
+@Provide()
+class MyProvider {
+  constructor(
+    @Inject('my-token')
+    private readonly myObject: { storedValue: string },
+    @Inject('my-example')
+    private readonly myExample: MyExample,
+  ) {}
+}
+
+const app = Boot.application({
+  providers: [
+    {
+      token: 'my-object',
+      useValue: {
+        storedValue: 'value',
+      },
+    },
+    {
+      token: 'my-example',
+      useValue: new MyExample(),
+    },
+    MyProvider,
+  ],
+})
+```
+
 ## Development
 
 ### Build
 
 ```bash
 $ yarn build
+```
+
+### Testing 
+
+```bash
+$ yarn test
 ```

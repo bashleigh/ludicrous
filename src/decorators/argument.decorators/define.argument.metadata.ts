@@ -1,4 +1,5 @@
 import { ARGUMENT } from '../../constants'
+import 'reflect-metadata'
 
 export interface ArgumentMetadata {
   name?: string

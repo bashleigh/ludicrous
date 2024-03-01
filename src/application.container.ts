@@ -6,11 +6,11 @@ import { HttpException, NotFoundException } from './exceptions'
 import http from 'http'
 import { ArgumentMetadata } from './decorators'
 
-export class ApplicationContainer {
-  private readonly providers: { [s: string]: Provider } = {}
-  private readonly instancedProviders: { [s: string]: any } = {}
+abstract class AbstractApplicationContainer<HandlerType> {
+  protected readonly providers: { [s: string]: Provider } = {}
+  protected readonly instancedProviders: { [s: string]: any } = {}
 
-  constructor(private readonly routeLogging: boolean = true) {}
+  constructor(protected readonly routeLogging: boolean = true) {}
 
   add(provider: Provider) {
     isValueProvider(provider) || isTokenProvider(provider)
@@ -50,14 +50,10 @@ export class ApplicationContainer {
     return this.resovleProvider(token)
   }
 
-  private cache() {
-    console.log('Caching all providers for dev validation')
-    Object.entries(this.providers).forEach(([token, provider]) => {
-      console.log('token', token, provider)
-      this.get(token)
-    })
-  }
+  abstract handle: HandlerType
+}
 
+export class HttpApplicationContainer extends AbstractApplicationContainer<Handler> {
   private mapArgumentMetadataToValues(
     { name, type }: ArgumentMetadata,
     {
@@ -136,6 +132,16 @@ export class ApplicationContainer {
         message: 'Internal Server Error',
       }
     }
+  }
+}
+
+export class DevHttpApplicationContainer extends HttpApplicationContainer {
+  private cache() {
+    console.log('Caching all providers for dev validation')
+    Object.entries(this.providers).forEach(([token, provider]) => {
+      console.log('token', token, provider)
+      this.get(token)
+    })
   }
 
   serve(port: number = 3000) {

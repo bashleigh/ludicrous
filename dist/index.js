@@ -29,15 +29,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
 
 // node_modules/reflect-metadata/Reflect.js
 var require_Reflect = __commonJS({
@@ -1124,7 +1115,6 @@ var require_Reflect = __commonJS({
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  Auth: () => Auth,
   BadRequestException: () => BadRequestException,
   Body: () => Body,
   Boot: () => Boot,
@@ -1139,6 +1129,7 @@ __export(src_exports, {
   HttpException: () => HttpException,
   HttpMethod: () => HttpMethod,
   Identity: () => Identity,
+  Inject: () => Inject,
   MethodNotAllowedException: () => MethodNotAllowedException,
   NotAcceptedException: () => NotAcceptedException,
   NotFoundException: () => NotFoundException,
@@ -1161,7 +1152,6 @@ var ARGUMENT = "ARGUMENT";
 var METHOD = "METHOD";
 var PATH = "PATH";
 var HEADER = "HEADER";
-var AUTHENTICATE = "AUTHENTICATE";
 var INJECTABLES = "INJECTABLES";
 var QUERY = "QUERY";
 var BODY = "BODY";
@@ -1305,11 +1295,42 @@ var UnprocessableContentException = class extends HttpException {
 
 // src/application.container.ts
 var import_http = __toESM(require("http"));
-var ApplicationContainer = class {
+var AbstractApplicationContainer = class {
   constructor(routeLogging = true) {
     this.routeLogging = routeLogging;
     this.providers = {};
     this.instancedProviders = {};
+  }
+  add(provider) {
+    isValueProvider(provider) || isTokenProvider(provider) ? this.providers[provider.token] = provider : this.providers[provider.name] = provider;
+  }
+  resovleProvider(token, prototype) {
+    const provider = this.providers[typeof token === "function" ? token.name : token];
+    if (!provider)
+      throw new Error(
+        `failed to get provider [${typeof token === "function" ? token.name : token}] when injecting to [${prototype}]. Make sure the provider has been added to the application`
+      );
+    if (isValueProvider(provider))
+      return provider.useValue;
+    const providerClass = isTokenProvider(provider) ? provider.useClass : provider;
+    if (this.instancedProviders[providerClass.name])
+      return this.instancedProviders[providerClass.name];
+    const paramsInfo = Reflect.getOwnMetadata(INJECTABLES, providerClass);
+    const resolvedInjectables = (paramsInfo || []).map(
+      (param) => this.resovleProvider(param.injectToken, providerClass.name),
+      providerClass.name
+    );
+    const resolved = new providerClass(...resolvedInjectables);
+    this.instancedProviders[providerClass.name] = resolved;
+    return resolved;
+  }
+  get(token) {
+    return this.resovleProvider(token);
+  }
+};
+var HttpApplicationContainer = class extends AbstractApplicationContainer {
+  constructor() {
+    super(...arguments);
     this.handle = async (event, context) => {
       this.routeLogging && console.log("event", event);
       const routeMetadata = this.get(RouteMetadataContainer);
@@ -1353,39 +1374,6 @@ var ApplicationContainer = class {
       }
     };
   }
-  add(provider) {
-    isValueProvider(provider) || isTokenProvider(provider) ? this.providers[provider.token] = provider : this.providers[provider.name] = provider;
-  }
-  resovleProvider(token, prototype) {
-    const provider = this.providers[typeof token === "function" ? token.name : token];
-    if (!provider)
-      throw new Error(
-        `failed to get provider [${typeof token === "function" ? token.name : token}] when injecting to [${prototype}]. Make sure the provider has been added to the application`
-      );
-    if (isValueProvider(provider))
-      return provider.useValue;
-    const providerClass = isTokenProvider(provider) ? provider.useClass : provider;
-    if (this.instancedProviders[providerClass.name])
-      return this.instancedProviders[providerClass.name];
-    const paramsInfo = Reflect.getOwnMetadata(INJECTABLES, providerClass);
-    const resolvedInjectables = (paramsInfo || []).map(
-      (param) => this.resovleProvider(param.injectToken, providerClass.name),
-      providerClass.name
-    );
-    const resolved = new providerClass(...resolvedInjectables);
-    this.instancedProviders[providerClass.name] = resolved;
-    return resolved;
-  }
-  get(token) {
-    return this.resovleProvider(token);
-  }
-  cache() {
-    console.log("Caching all providers for dev validation");
-    Object.entries(this.providers).forEach(([token, provider]) => {
-      console.log("token", token, provider);
-      this.get(token);
-    });
-  }
   mapArgumentMetadataToValues({ name, type }, {
     parameters,
     query,
@@ -1402,6 +1390,15 @@ var ApplicationContainer = class {
       case "IDENTITY":
         return identity;
     }
+  }
+};
+var DevHttpApplicationContainer = class extends HttpApplicationContainer {
+  cache() {
+    console.log("Caching all providers for dev validation");
+    Object.entries(this.providers).forEach(([token, provider]) => {
+      console.log("token", token, provider);
+      this.get(token);
+    });
   }
   serve(port = 3e3) {
     this.cache();
@@ -1424,136 +1421,6 @@ var ApplicationContainer = class {
     }).listen(port);
   }
 };
-
-// src/decorators/index.ts
-var import_reflect_metadata = __toESM(require_Reflect());
-
-// src/decorators/argument.decorators/define.argument.metadata.ts
-var defineArgumentMetadata = ({ name, type, method, propertyIndex, target }) => {
-  Reflect.defineMetadata(
-    `${ARGUMENT}::${method == null ? void 0 : method.toString()}`,
-    [
-      ...Reflect.getMetadata(`${ARGUMENT}::${method == null ? void 0 : method.toString()}`, target) || [],
-      { type, name, method, propertyIndex }
-    ].sort((a, b) => a.propertyIndex - b.propertyIndex),
-    target
-  );
-};
-
-// src/decorators/argument.decorators/body.ts
-var Body = () => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
-  target,
-  method: propertyKey,
-  propertyIndex,
-  type: BODY
-});
-
-// src/decorators/argument.decorators/header.ts
-var Header = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
-  name,
-  target,
-  method: propertyKey,
-  propertyIndex,
-  type: HEADER
-});
-
-// src/decorators/argument.decorators/identity.ts
-var Identity = () => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
-  target,
-  method: propertyKey,
-  propertyIndex,
-  type: IDENTITY
-});
-
-// src/decorators/argument.decorators/param.ts
-var Param = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
-  name,
-  target,
-  method: propertyKey,
-  propertyIndex,
-  type: PARAMETER
-});
-
-// src/decorators/argument.decorators/query.ts
-var Query = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
-  name,
-  target,
-  method: propertyKey,
-  propertyIndex,
-  type: QUERY
-});
-
-// src/decorators/class.decorators/auth.ts
-var Auth = (roles) => (target, propertyKey, descriptor) => Reflect.defineMetadata(AUTHENTICATE, { roles }, target);
-
-// src/decorators/class.decorators/index.ts
-var injectify = (target, key, options) => {
-  const prototype = target.prototype;
-  const parameters = Reflect.getMetadata("design:paramtypes", prototype.constructor);
-  Reflect.defineMetadata(key, options, target);
-  if (parameters) {
-    const paramTokens = parameters.map((param, index) => {
-      const injectInfo = Reflect.getMetadata(`param::${index}`, target);
-      const customToken = injectInfo == null ? void 0 : injectInfo.token;
-      const injectToken = customToken || param.name;
-      return {
-        injectToken,
-        typeName: param.name
-      };
-    });
-    Reflect.defineMetadata(INJECTABLES, paramTokens, target);
-  }
-};
-var Controller = (path) => (target) => injectify(target, CONTROLLER, { path });
-var Provide = () => (target) => injectify(target, PROVIDER);
-
-// src/types/http/method.ts
-var HttpMethod = /* @__PURE__ */ ((HttpMethod2) => {
-  HttpMethod2["GET"] = "GET";
-  HttpMethod2["POST"] = "POST";
-  HttpMethod2["PUT"] = "PUT";
-  HttpMethod2["PATCH"] = "PATCH";
-  HttpMethod2["OPTIONS"] = "OPTIONS";
-  HttpMethod2["DELETE"] = "DELETE";
-  return HttpMethod2;
-})(HttpMethod || {});
-
-// src/decorators/method.decorators/define.method.metadata.ts
-var defineMethodMetadata = (path = "/", method) => (target, propertyKey, descriptor) => {
-  const controllerMetadata = Reflect.getMetadata(CONTROLLER, target.constructor);
-  Reflect.defineMetadata(
-    PATH,
-    [controllerMetadata == null ? void 0 : controllerMetadata.path, path].filter((path2) => path2 !== void 0).join("/"),
-    descriptor.value
-  );
-  Reflect.defineMetadata(METHOD, method, descriptor.value);
-};
-
-// src/decorators/method.decorators/delete.ts
-var Delete = (path) => defineMethodMetadata(path, "DELETE" /* DELETE */);
-
-// src/decorators/method.decorators/get.ts
-var Get = (path) => defineMethodMetadata(path, "GET" /* GET */);
-
-// src/decorators/method.decorators/patch.ts
-var Patch = (path) => defineMethodMetadata(path, "PATCH" /* PATCH */);
-
-// src/decorators/method.decorators/post.ts
-var Post = (path) => defineMethodMetadata(path, "POST" /* POST */);
-
-// src/decorators/method.decorators/put.ts
-var Put = (path) => defineMethodMetadata(path, "PUT" /* PUT */);
-
-// src/authentication.provider.ts
-var AuthenticationProvider = class {
-  authenticate(requestContext) {
-    const header = requestContext.headers.get("authentication");
-    return false;
-  }
-};
-AuthenticationProvider = __decorateClass([
-  Provide()
-], AuthenticationProvider);
 
 // node_modules/path-to-regexp/dist.es2015/index.js
 function lexer(str) {
@@ -1863,7 +1730,7 @@ var Boot = class {
     routeLogging: true
   }) {
     const routeMetadata = new RouteMetadataContainer(bootLogging);
-    const container = new ApplicationContainer(routeLogging);
+    const container = new DevHttpApplicationContainer(routeLogging);
     providers.forEach((provider) => {
       const isController = Reflect.hasOwnMetadata(CONTROLLER, provider);
       const isFunction = isConstructorProvider(provider);
@@ -1895,14 +1762,145 @@ var Boot = class {
       token: RouteMetadataContainer.name,
       useValue: routeMetadata
     });
-    container.add(AuthenticationProvider);
     bootLogging && console.log("Application successfully booted");
     return container;
   }
 };
+
+// src/decorators/argument.decorators/define.argument.metadata.ts
+var import_reflect_metadata = __toESM(require_Reflect());
+var defineArgumentMetadata = ({ name, type, method, propertyIndex, target }) => {
+  Reflect.defineMetadata(
+    `${ARGUMENT}::${method == null ? void 0 : method.toString()}`,
+    [
+      ...Reflect.getMetadata(`${ARGUMENT}::${method == null ? void 0 : method.toString()}`, target) || [],
+      { type, name, method, propertyIndex }
+    ].sort((a, b) => a.propertyIndex - b.propertyIndex),
+    target
+  );
+};
+
+// src/decorators/argument.decorators/body.ts
+var Body = () => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: BODY
+});
+
+// src/decorators/argument.decorators/header.ts
+var Header = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  name,
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: HEADER
+});
+
+// src/decorators/argument.decorators/identity.ts
+var Identity = () => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: IDENTITY
+});
+
+// src/decorators/argument.decorators/param.ts
+var Param = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  name,
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: PARAMETER
+});
+
+// src/decorators/argument.decorators/query.ts
+var Query = (name) => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  name,
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: QUERY
+});
+
+// src/decorators/class.decorators/define.class.metadata.ts
+var import_reflect_metadata2 = __toESM(require_Reflect());
+var defineClassMetadata = (target, key, options) => {
+  const prototype = target.prototype;
+  const parameters = Reflect.getMetadata("design:paramtypes", prototype.constructor);
+  Reflect.defineMetadata(key, options, target);
+  if (parameters) {
+    const paramTokens = parameters.map((param, index) => {
+      const injectInfo = Reflect.getMetadata(`param::${index}`, target);
+      const customToken = injectInfo == null ? void 0 : injectInfo.token;
+      const injectToken = customToken || param.name;
+      return {
+        injectToken,
+        typeName: param.name
+      };
+    });
+    Reflect.defineMetadata(INJECTABLES, paramTokens, target);
+  }
+};
+
+// src/decorators/class.decorators/controller.ts
+var Controller = (path) => (target) => defineClassMetadata(target, CONTROLLER, { path });
+
+// src/decorators/class.decorators/provide.ts
+var import_reflect_metadata3 = __toESM(require_Reflect());
+var Provide = () => (target) => defineClassMetadata(target, PROVIDER);
+
+// src/types/http/method.ts
+var HttpMethod = /* @__PURE__ */ ((HttpMethod2) => {
+  HttpMethod2["GET"] = "GET";
+  HttpMethod2["POST"] = "POST";
+  HttpMethod2["PUT"] = "PUT";
+  HttpMethod2["PATCH"] = "PATCH";
+  HttpMethod2["OPTIONS"] = "OPTIONS";
+  HttpMethod2["DELETE"] = "DELETE";
+  return HttpMethod2;
+})(HttpMethod || {});
+
+// src/decorators/http.decorators/define.method.metadata.ts
+var defineMethodMetadata = (path = "/", method) => (target, propertyKey, descriptor) => {
+  const controllerMetadata = Reflect.getMetadata(CONTROLLER, target.constructor);
+  Reflect.defineMetadata(
+    PATH,
+    [controllerMetadata == null ? void 0 : controllerMetadata.path, path].filter((path2) => path2 !== void 0).join("/"),
+    descriptor.value
+  );
+  Reflect.defineMetadata(METHOD, method, descriptor.value);
+};
+
+// src/decorators/http.decorators/delete.ts
+var import_reflect_metadata4 = __toESM(require_Reflect());
+var Delete = (path) => defineMethodMetadata(path, "DELETE" /* DELETE */);
+
+// src/decorators/http.decorators/get.ts
+var import_reflect_metadata5 = __toESM(require_Reflect());
+var Get = (path) => defineMethodMetadata(path, "GET" /* GET */);
+
+// src/decorators/http.decorators/patch.ts
+var import_reflect_metadata6 = __toESM(require_Reflect());
+var Patch = (path) => defineMethodMetadata(path, "PATCH" /* PATCH */);
+
+// src/decorators/http.decorators/post.ts
+var import_reflect_metadata7 = __toESM(require_Reflect());
+var Post = (path) => defineMethodMetadata(path, "POST" /* POST */);
+
+// src/decorators/http.decorators/put.ts
+var import_reflect_metadata8 = __toESM(require_Reflect());
+var Put = (path) => defineMethodMetadata(path, "PUT" /* PUT */);
+
+// src/decorators/inject/index.ts
+var import_reflect_metadata9 = __toESM(require_Reflect());
+var Inject = (token) => (target, propertyKey, paramIndex) => {
+  Reflect.defineMetadata(`param::${paramIndex}`, {
+    token
+  }, target);
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Auth,
   BadRequestException,
   Body,
   Boot,
@@ -1917,6 +1915,7 @@ var Boot = class {
   HttpException,
   HttpMethod,
   Identity,
+  Inject,
   MethodNotAllowedException,
   NotAcceptedException,
   NotFoundException,
