@@ -3,7 +3,11 @@ import { Boot } from './boot'
 import { Controller, Get, Param, Provide, Query } from './decorators'
 
 @Provide()
+class AnotherProvider {}
+
+@Provide()
 class MyProvider {
+  constructor(private readonly another: AnotherProvider) {}
   test() {
     return 'hello, I am a response'
   }
@@ -52,7 +56,7 @@ class AnotherController {
 }
 
 const application = Boot.application({
-  providers: [TestController, MyProvider, AnotherController],
+  providers: [TestController, MyProvider, AnotherProvider, AnotherController],
 })
 
 application.serve(3000)

@@ -4,11 +4,11 @@ import { INJECTABLES, PARAMETER } from './constants'
 import { RouteMetadataContainer } from './metadata.container'
 import { HttpException, NotFoundException } from './exceptions'
 import http from 'http'
-import { match } from 'path-to-regexp'
 import { ArgumentMetadata } from './decorators'
 
 export class ApplicationContainer {
   private readonly providers: { [s: string]: Provider } = {}
+  private readonly instancedProviders: { [s: string]: any } = {}
 
   constructor(private readonly routeLogging: boolean = true) {}
 
@@ -18,20 +18,44 @@ export class ApplicationContainer {
       : (this.providers[provider.name] = provider)
   }
 
-  get<T extends any>(token: Function | string): T {
+  private resovleProvider<T>(token: string | Function, prototype?: string): T {
     const provider = this.providers[typeof token === 'function' ? token.name : token]
 
-    if (!provider) throw new Error(`failed to get provider [${typeof token === 'function' ? token.name : token}]`)
+    if (!provider)
+      throw new Error(
+        `failed to get provider [${typeof token === 'function' ? token.name : token}] when injecting to [${prototype}]. Make sure the provider has been added to the application`,
+      )
 
     if (isValueProvider(provider)) return provider.useValue
 
     const providerClass = isTokenProvider(provider) ? provider.useClass : provider
 
+    if (this.instancedProviders[providerClass.name]) return this.instancedProviders[providerClass.name]
+
     const paramsInfo = Reflect.getOwnMetadata(INJECTABLES, providerClass)
 
-    const resolvedInjectables = (paramsInfo || []).map((param: { injectToken: string }) => this.get(param.injectToken))
+    const resolvedInjectables = (paramsInfo || []).map(
+      (param: { injectToken: string }) => this.resovleProvider(param.injectToken, providerClass.name),
+      providerClass.name,
+    )
 
-    return new providerClass(...resolvedInjectables)
+    const resolved = new providerClass(...resolvedInjectables)
+
+    this.instancedProviders[providerClass.name] = resolved
+
+    return resolved
+  }
+
+  get<T>(token: Function | string): T {
+    return this.resovleProvider(token)
+  }
+
+  private cache() {
+    console.log('Caching all providers for dev validation')
+    Object.entries(this.providers).forEach(([token, provider]) => {
+      console.log('token', token, provider)
+      this.get(token)
+    })
   }
 
   private mapArgumentMetadataToValues(
@@ -78,10 +102,10 @@ export class ApplicationContainer {
       // TODO add route logging and use condition this.routeLogging
       console.log('controller', controller[route.method])
 
-      const parameterMetadata: ArgumentMetadata[] =
+      const argumentMetadata: ArgumentMetadata[] =
         Reflect.getMetadata(`${PARAMETER}::${route.method.toString()}`, controller) || []
 
-      const args: { [s: string]: any }[] = parameterMetadata.map((metadata) =>
+      const args: { [s: string]: any }[] = argumentMetadata.map((metadata) =>
         this.mapArgumentMetadataToValues(metadata, {
           parameters: route.match.params,
           query,
@@ -90,15 +114,13 @@ export class ApplicationContainer {
         }),
       )
 
-      console.log('parameters', args)
+      console.log('arguments', args)
 
       // TODO call the controller method with the required parameters
       const result = await controller[route.method](...args)
 
       if (typeof result === 'object' && result.statusCode) return result
       else return { statusCode: 200, body: result }
-
-      throw new NotFoundException()
     } catch (error) {
       console.error(error)
       if (error instanceof HttpException) {
@@ -117,6 +139,7 @@ export class ApplicationContainer {
   }
 
   serve(port: number = 3000) {
+    this.cache()
     console.log('serving from port', port)
     return http
       .createServer(async (request, response) => {
