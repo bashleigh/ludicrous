@@ -1,4 +1,5 @@
 import { Provider } from "./provider"
+import { Match, MatchFunction, MatchResult } from 'path-to-regexp'
 
 export interface ProviderMetadata {
   type: 'controller' | 'provider',
@@ -34,13 +35,22 @@ export interface RouteMetadata {
   controllerToken: string,
   controllerMetadata: { path: string },
   pathReg: RegExp,
+  match: MatchFunction,
 }
 
 export class RouteMetadataContainer extends AbstractMetadataContainer<RouteMetadata> {
-  resolvePathToRouteMetadata(path: string, method: string): RouteMetadata | undefined {
-    return Object.values(this.metadata).find(metadata => {
-      return metadata.httpMethod === method && metadata.pathReg.exec(path)
+  resolvePathToRouteMetadata(path: string, method: string): RouteMetadata & { match: MatchResult<any> } | undefined {
+    let match: Match | false = false
+
+    const metadata = Object.values(this.metadata).find(metadata => {
+      match = metadata.match(path)
+      return metadata.httpMethod === method && match
     })
+
+    return metadata && match ? {
+      ...metadata,
+      match,
+    } : undefined
   }
 
   add(metadata: RouteMetadata) {

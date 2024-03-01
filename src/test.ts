@@ -1,6 +1,6 @@
 import { Context } from "aws-lambda";
 import { Boot } from "./boot";
-import { Controller, Get, Provide } from "./decorators";
+import { Controller, Get, Param, Provide, Query } from "./decorators";
 
 @Provide()
 class MyProvider {
@@ -21,8 +21,23 @@ class TestController {
   }
 
   @Get('withparams/:param/:id')
-  async params() {
-    return 'with parameters'
+  async params(
+    @Param('id') id: string,
+    @Param('param') param: string,
+  ) {
+    return `with parameters [${id}] [${param}]`
+  }
+
+  @Get('moreparams/:param/:id/:test/:red')
+  async moreParams(
+    @Query('testingquery') query: string,
+    @Param('test') test: string,
+    @Param('red') red: string,
+    @Param('id') id: string,
+    @Param('param') param: string,
+  ) {
+    console.log({ param, id, test, red, query })
+    return `with parameters [${id}] [${param}] [${test}]`
   }
 
   @Get('/another/')

@@ -1,9 +1,11 @@
 import { APIGatewayProxyEvent, Context, Handler } from "aws-lambda";
 import { Provider, isTokenProvider, isValueProvider } from "./provider";
-import { INJECTABLES } from "./constants";
+import { INJECTABLES, PARAMETER } from "./constants";
 import { RouteMetadataContainer } from "./metadata.container";
 import { HttpException, NotFoundException } from "./exceptions";
 import http from 'http'
+import { match } from 'path-to-regexp'
+import { ArgumentMetadata } from "./decorators";
 
 export class ApplicationContainer {
   private readonly providers: { [s: string]: Provider } = {}
@@ -32,10 +34,34 @@ export class ApplicationContainer {
     return new providerClass(...resolvedInjectables)
   }
 
+  private mapArgumentMetadataToValues({ name, type }: ArgumentMetadata, {
+    parameters,
+    query,
+    body,
+    identity,
+  }: {
+    parameters: {[s: string]: any},
+    query: {[s: string]: any} | null,
+    body: any,
+    identity: any,
+  }): any {
+    switch (type) {
+      case 'QUERY':
+        return query ? query[name as string] || undefined : undefined
+      case 'PARAMETER':
+        return parameters[name as string]
+      case 'BODY':
+        return body
+      case 'IDENTITY':
+        return identity // TODO need to be resolved from authentication provider
+    }
+  }
+
   handle: Handler = async (event: APIGatewayProxyEvent, context: Context) => {
     this.routeLogging && console.log('event', event)
     const routeMetadata = this.get<RouteMetadataContainer>(RouteMetadataContainer)
     const path = event.path.replace(/^\//, '')
+    const query = event.queryStringParameters
 
     const route = routeMetadata.resolvePathToRouteMetadata(path, event.httpMethod.toLowerCase())
 
@@ -50,13 +76,23 @@ export class ApplicationContainer {
       // TODO add route logging and use condition this.routeLogging
       console.log('controller', controller[route.method])
 
-      // TODO not sure how to call it?
-      const result = await controller[route.method]()
+      const parameterMetadata: ArgumentMetadata[] = Reflect.getMetadata(`${PARAMETER}::${route.method.toString()}`, controller) || []
+
+      const args: {[s: string]: any}[] = parameterMetadata
+      .map((metadata) =>  this.mapArgumentMetadataToValues(metadata, {
+        parameters: route.match.params,
+        query,
+        body: event.body,
+        identity: undefined,
+      }))
+
+      console.log('parameters', args)
+
+      // TODO call the controller method with the required parameters
+      const result = await controller[route.method](...args)
 
       if (typeof result === 'object' && result.statusCode) return result
       else return { statusCode: 200, body: result }
-
-      //TODO get controller using route info
 
       throw new NotFoundException()
 
@@ -80,14 +116,15 @@ export class ApplicationContainer {
   serve(port: number = 3000) {
     console.log('serving from port', port)
     return http.createServer(async (request, response) => {
+      //@ts-ignore
+    const [path, query] = request.url?.split('?')
       const result = await this.handle({
-        path: request.url,
-        httpMethod: request.method,
-      }, {} as Context, () => {
+          path: path,
+          httpMethod: request.method,
+          queryStringParameters:  Object.fromEntries(new URLSearchParams(query)),
+        }, {} as Context, () => {
       })
 
-      // response.write(result.body || result.message)
-      // response.writeHead(result.statusCode)
       response.writeHead(result.statusCode)
       response.end(result.body || result.message)
     }).listen(port)

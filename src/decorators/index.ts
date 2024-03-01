@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { AUTHENTICATE, CONTROLLER, HEADER, INJECTABLES, METHOD, PARAMETER, PATH, PROVIDER } from '../constants'
+import { AUTHENTICATE, BODY, CONTROLLER, HEADER, IDENTITY, INJECTABLES, METHOD, PARAMETER, PATH, PROVIDER, QUERY } from '../constants'
 
 const injectify = (target: Function, key: string, options?: {}) => {
   const prototype = target.prototype
@@ -49,10 +49,57 @@ export const Delete = (path?: string): MethodDecorator => defineMethod(path, 'de
 
 export const Patch = (path?: string): MethodDecorator => defineMethod(path, 'patch')
 
-export const Header = (key: string): PropertyDecorator => (target, propertyKey) => {
+export const Header = (key: string): ParameterDecorator => (target, propertyKey) => {
   Reflect.defineMetadata(HEADER, { key }, target) // TODO this all need to be arrayable
 }
 
-export const Param = (parameter: string): PropertyDecorator => (target, propertyKey) => {
-  Reflect.defineMetadata(PARAMETER, { parameter }, target) // TODO this all need to be arrayable
+export interface ArgumentMetadata {
+  name?: string,
+  type: 'QUERY' | 'PARAMETER' | 'BODY' | 'IDENTITY',
+  method: string | symbol | undefined,
+  propertyIndex: number,
+  target: Object,
 }
+
+const defineArgumentMetadata = ({
+  name,
+  type,
+  method,
+  propertyIndex,
+  target,
+}: ArgumentMetadata) => {
+  Reflect.defineMetadata(`${PARAMETER}::${method?.toString()}`, [
+    ...(Reflect.getMetadata(`${PARAMETER}::${method?.toString()}`, target) || []),
+    { type, name, method: method, propertyIndex },
+  ].sort((a,b) => a.propertyIndex - b.propertyIndex), target)
+}
+
+export const Param = (name: string): ParameterDecorator => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  name,
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: PARAMETER,
+})
+
+export const Query = (name: string): ParameterDecorator => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  name,
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: QUERY,
+})
+
+export const Body = (): ParameterDecorator => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: BODY,
+})
+
+export const Identity = (): ParameterDecorator => (target, propertyKey, propertyIndex) => defineArgumentMetadata({
+  target,
+  method: propertyKey,
+  propertyIndex,
+  type: IDENTITY,
+})

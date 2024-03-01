@@ -3,7 +3,7 @@ import { ApplicationContainer } from "./application.container";
 import { MetadataContainer, RouteMetadataContainer } from "./metadata.container";
 import { Provider, isConstructorProvider } from './provider'
 import { AuthenticationProvider } from "./authentication.provider";
-import { pathToRegexp } from "path-to-regexp";
+import { pathToRegexp, match } from "path-to-regexp";
 
 export interface ApplicationOptions {
   bootLogging?: boolean,
@@ -55,6 +55,7 @@ export class Boot {
             controllerMetadata,
             token: fullPath,
             pathReg: pathToRegexp(fullPath),
+            match: match(fullPath),
           })
         })
       }
