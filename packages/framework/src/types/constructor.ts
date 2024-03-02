@@ -1,5 +1,3 @@
-declare type constructor<T> = {
+export type constructor<T> = {
   new (...args: any[]): T
 }
-
-export default constructor

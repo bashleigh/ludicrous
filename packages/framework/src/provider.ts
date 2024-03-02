@@ -1,4 +1,4 @@
-import constructor from './types/constructor'
+import { constructor } from './types'
 
 export type ValueProvider = { token: string; useValue: any }
 export type TokenProvider = { token: string; useClass: constructor<any> }

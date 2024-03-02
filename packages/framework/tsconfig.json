@@ -1,5 +1,4 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["public", "dist", "node_modules", "coverage"]
+  "include": ["src"]
 }
