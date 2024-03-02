@@ -164,6 +164,40 @@ const application = Boot.application({
 })
 ```
 
+#### Exception Handling
+
+Ludicrous supplies some build in http exception which will be interpreted as http responses 
+
+```ts
+import { Controller, Get, Param, NotFoundException } from '@reapit/ludicrous'
+
+@Controller('my-controller')
+export class MyController {
+  myDatabase = { someId: 'value' }
+
+  @Get(':id')
+  method(@Param('id') id: string) {
+    if (!this.myDatabase[id]) throw new NotFoundException()
+  }
+}
+```
+
+Hitting the endpoint `/my-controller/nothing` will result in `404 Not Found` response
+
+Available Exceptions are
+
+```ts
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  MethodNotAllowedException,
+  NotFoundException,
+  UnauthorizedException,
+  UnProcessableContentException,
+} from '@reapit/ludicrous'
+```
+
 ### Providers
 
 A provider can be a class or object

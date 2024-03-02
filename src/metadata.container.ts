@@ -1,5 +1,7 @@
 import { Provider } from './provider'
-import { Match, MatchFunction, MatchResult } from 'path-to-regexp'
+import { Match, MatchFunction, MatchResult, match, pathToRegexp } from 'path-to-regexp'
+import constructor from './types/constructor'
+import { CONTROLLER, PATH } from './constants'
 
 export interface ProviderMetadata {
   type: 'controller' | 'provider'
@@ -20,11 +22,11 @@ abstract class AbstractMetadataContainer<T extends { token: string }> {
   }
 }
 
-export class MetadataContainer extends AbstractMetadataContainer<ProviderMetadata> {
-  getControllers() {
-    return Object.values(this.metadata).filter((metadata) => metadata.type === 'controller')
-  }
-}
+// export class MetadataContainer extends AbstractMetadataContainer<ProviderMetadata> {
+//   getControllers() {
+//     return Object.values(this.metadata).filter((metadata) => metadata.type === 'controller')
+//   }
+// }
 
 export interface RouteMetadata {
   token: string //path
@@ -53,11 +55,28 @@ export class RouteMetadataContainer extends AbstractMetadataContainer<RouteMetad
       : undefined
   }
 
-  add(metadata: RouteMetadata) {
+  addRoute(
+    metadata: Omit<Omit<Omit<Omit<RouteMetadata, 'token'>, 'controllerMetadata'>, 'pathReg'>, 'match'> & {
+      provider: constructor<any>
+    },
+  ) {
+    const controllerMetadata = Reflect.getMetadata(CONTROLLER, metadata.provider)
+    const pathMetadata = Reflect.getOwnMetadata(PATH, metadata.provider.prototype[metadata.method])
+    const fullPath = [controllerMetadata.path.replace(/^\//g, ''), pathMetadata]
+      .filter((part) => part !== undefined && part !== '' && part !== '/')
+      .join('/')
+      .replace(/\/\//g, '/')
+
     this.bootLogging &&
       console.log(
-        `Resolving ${metadata.httpMethod.toUpperCase()} ${metadata.token} => ${metadata.controllerToken}.${metadata.method.toString()}`,
+        `Resolving ${metadata.httpMethod.toUpperCase()} ${fullPath} => ${metadata.controllerToken}.${metadata.method.toString()}`,
       )
-    super.add(metadata)
+    super.add({
+      ...metadata,
+      token: `${metadata.httpMethod.toString()}-${fullPath}`,
+      controllerMetadata,
+      match: match(fullPath),
+      pathReg: pathToRegexp(fullPath),
+    })
   }
 }

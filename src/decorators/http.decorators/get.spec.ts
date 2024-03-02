@@ -5,7 +5,7 @@ import { Get } from './get'
 describe('Get', () => {
   it('Can add GET method metadata to controller', () => {
     class Test {
-      @Get()
+      @Get('my-path')
       method() {}
     }
 
@@ -15,6 +15,6 @@ describe('Get', () => {
     expect(methodMetadata).toBeDefined()
     expect(methodMetadata).toBe(HttpMethod.GET)
     expect(pathMetadata).toBeDefined()
-    expect(pathMetadata).toBe('/')
+    expect(pathMetadata).toBe('my-path')
   })
 })

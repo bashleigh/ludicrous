@@ -15,6 +15,6 @@ describe('Post', () => {
     expect(methodMetadata).toBeDefined()
     expect(methodMetadata).toBe(HttpMethod.POST)
     expect(pathMetadata).toBeDefined()
-    expect(pathMetadata).toBe('/')
+    expect(pathMetadata).toBe('')
   })
 })

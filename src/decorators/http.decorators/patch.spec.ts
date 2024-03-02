@@ -1,11 +1,13 @@
 import { HttpMethod } from '../../types'
 import { METHOD, PATH } from '../../constants'
 import { Patch } from './patch'
+import { Controller } from '../class.decorators'
 
 describe('Patch', () => {
   it('Can add PATCH method metadata to controller', () => {
+    @Controller('controller')
     class Test {
-      @Patch()
+      @Patch('method')
       method() {}
     }
 
@@ -15,6 +17,6 @@ describe('Patch', () => {
     expect(methodMetadata).toBeDefined()
     expect(methodMetadata).toBe(HttpMethod.PATCH)
     expect(pathMetadata).toBeDefined()
-    expect(pathMetadata).toBe('/')
+    expect(pathMetadata).toBe('method')
   })
 })

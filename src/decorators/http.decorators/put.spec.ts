@@ -15,6 +15,6 @@ describe('Put', () => {
     expect(methodMetadata).toBeDefined()
     expect(methodMetadata).toBe(HttpMethod.PUT)
     expect(pathMetadata).toBeDefined()
-    expect(pathMetadata).toBe('/')
+    expect(pathMetadata).toBe('')
   })
 })

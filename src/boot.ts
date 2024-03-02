@@ -1,9 +1,7 @@
 import { CONTROLLER, METHOD, PATH } from './constants'
 import { HttpApplicationContainer, DevHttpApplicationContainer } from './application.container'
-import { MetadataContainer, RouteMetadataContainer } from './metadata.container'
+import { RouteMetadataContainer } from './metadata.container'
 import { Provider, isConstructorProvider } from './provider'
-// import { AuthenticationProvider } from './authentication.provider'
-import { pathToRegexp, match } from 'path-to-regexp'
 
 export interface ApplicationOptions {
   bootLogging?: boolean
@@ -45,22 +43,14 @@ export class Boot {
 
         methods?.forEach((method) => {
           const methodMetadata = Reflect.getOwnMetadata(METHOD, prototype[method])
-          const pathMetadata = Reflect.getOwnMetadata(PATH, prototype[method])
 
           if (!methodMetadata) return
 
-          const controllerMetadata = Reflect.getOwnMetadata(CONTROLLER, provider)
-
-          const fullPath = [controllerMetadata.path.replace(/^\//g, ''), pathMetadata].join('/').replace(/\/\//g, '/')
-
-          routeMetadata.add({
-            controllerToken,
-            httpMethod: methodMetadata,
+          routeMetadata.addRoute({
             method,
-            controllerMetadata,
-            token: fullPath,
-            pathReg: pathToRegexp(fullPath),
-            match: match(fullPath),
+            httpMethod: methodMetadata,
+            controllerToken,
+            provider,
           })
         })
       }

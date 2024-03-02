@@ -15,6 +15,6 @@ describe('Delete', () => {
     expect(methodMetadata).toBeDefined()
     expect(methodMetadata).toBe(HttpMethod.DELETE)
     expect(pathMetadata).toBeDefined()
-    expect(pathMetadata).toBe('/')
+    expect(pathMetadata).toBe('')
   })
 })
