@@ -6,7 +6,7 @@ import { HttpException, NotFoundException } from './exceptions'
 import http from 'http'
 import { ArgumentMetadata } from './decorators'
 
-abstract class AbstractApplicationContainer<HandlerType> {
+export abstract class AbstractApplicationContainer<HandlerType> {
   protected readonly providers: { [s: string]: Provider } = {}
   protected readonly instancedProviders: { [s: string]: any } = {}
 

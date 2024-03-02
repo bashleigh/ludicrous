@@ -1,5 +1,5 @@
-import { CONTROLLER, METHOD, PATH } from './constants'
-import { HttpApplicationContainer, DevHttpApplicationContainer } from './application.container'
+import { CONTROLLER, METHOD } from './constants'
+import { DevHttpApplicationContainer } from './application.container'
 import { RouteMetadataContainer } from './metadata.container'
 import { Provider, isConstructorProvider } from './provider'
 
