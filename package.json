@@ -10,6 +10,7 @@
   },
   "packageManager": "yarn@4.0.1",
   "scripts": {
-    "format": "yarn workspaces foreach --all  --parallel --verbose run format"
+    "format": "yarn workspaces foreach --all  --parallel --verbose run format",
+    "test": "yarn workspaces foreach --all  --parallel --verbose run test"
   }
 }
