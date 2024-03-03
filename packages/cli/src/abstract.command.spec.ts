@@ -1,5 +1,5 @@
-import { AbstractCommand } from "./abstract.command"
-import { Arg, Command } from "./decorators"
+import { AbstractCommand } from './abstract.command'
+import { Arg, Command } from './decorators'
 
 @Command({
   name: 'test',
@@ -12,9 +12,7 @@ class TestCommand extends AbstractCommand {
       description: '',
     })
     arg: string,
-  ) {
-    
-  }
+  ) {}
 
   getCommandOptions = () => this.commandOptions
   getArgOptions = () => this.argOptions
@@ -28,9 +26,7 @@ class TestCommand extends AbstractCommand {
   children: [TestCommand],
 })
 class ParentCommand extends AbstractCommand {
-  run() {
-    
-  }
+  run() {}
 }
 
 describe('AbstractCommand', () => {
@@ -83,12 +79,12 @@ describe('AbstractCommand', () => {
     it('isParent should be true', () => {
       expect(command.isParent).toBeTruthy()
     })
-  
+
     it('Help command will print to console', () => {
       console.log = jest.fn()
-  
+
       command.help()
-  
+
       expect(console.log).toHaveBeenCalled()
     })
   })

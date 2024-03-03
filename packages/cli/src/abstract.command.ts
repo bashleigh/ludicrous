@@ -3,10 +3,10 @@ import { ARGUMENT_OPTIONS, ArgOptionsInterface, COMMAND_OPTIONS, CommandOptionsI
 import { Inject } from '@reapit-ludicrous/framework'
 
 export interface GlobalConfig {
-  commandName: string,
-  devMode: boolean,
-  childParameters?: string[],
-  [s: string]: any,
+  commandName: string
+  devMode: boolean
+  childParameters?: string[]
+  [s: string]: any
 }
 
 export abstract class AbstractCommand {
@@ -21,21 +21,21 @@ export abstract class AbstractCommand {
   }
 
   /**
-   * Store command config 
+   * Store command config
    * @param config Yuor command's config
-   * @param options 
+   * @param options
    */
-  protected storeCommandConfig<T>(config: T, options?: { filename?: string, path?: string }) {
+  protected storeCommandConfig<T>(config: T, options?: { filename?: string; path?: string }) {
     // TODO add cwd as default root path
     writeFileSync(options?.filename || this.globalConfig.commandName, JSON.stringify(config, null, 2), 'utf8')
   }
 
   /**
    * Get the stored command config
-   * @param options 
-   * @returns 
+   * @param options
+   * @returns
    */
-  protected getCommandConfig<T>(options?: { filename?: string, path?: string }): T {
+  protected getCommandConfig<T>(options?: { filename?: string; path?: string }): T {
     // TODO add cwd as default root path
     return JSON.parse(readFileSync(options?.filename || this.globalConfig.commandName, 'utf8'))
     // TODO resolve a default value such as {}
@@ -43,9 +43,9 @@ export abstract class AbstractCommand {
 
   /**
    * Write a line to the console
-   * @param line 
-   * @param tabbed 
-   * @param tabValue 
+   * @param line
+   * @param tabbed
+   * @param tabValue
    */
   protected writeLn(line: string, tabbed: number = 0, tabValue: string = '\t') {
     console.log(
@@ -65,17 +65,17 @@ export abstract class AbstractCommand {
   get isParent(): boolean {
     return Boolean(this.commandOptions.children && this.commandOptions.children.length >= 1)
   }
-  
-  abstract run(...params: any[]): Promise<any> | any;
+
+  abstract run(...params: any[]): Promise<any> | any
 
   /**
-   * Function for printing the help display of the 
+   * Function for printing the help display of the
    */
   help() {
     this.printConfig(this.commandOptions, this.argOptions)
 
     if (this.isParent) {
-      this.commandOptions.children?.forEach(child => {
+      this.commandOptions.children?.forEach((child) => {
         const commandOptions = Reflect.getOwnMetadata(COMMAND_OPTIONS, child)
         const argOptions = Reflect.getOwnMetadata(ARGUMENT_OPTIONS, child)
 
@@ -91,7 +91,7 @@ export abstract class AbstractCommand {
     this.writeLn(commandOptions.name)
     this.writeLn(commandOptions.description)
 
-    argOptions?.forEach(arg => {
+    argOptions?.forEach((arg) => {
       this.writeLn(arg.name)
       this.writeLn(`${arg.required ? '[Required] ' : ''}${arg.description}`)
       arg.default && this.writeLn(`Default: ${arg.default}`)

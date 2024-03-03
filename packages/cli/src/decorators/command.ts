@@ -9,7 +9,10 @@ export interface CommandOptionsInterface {
   children?: constructor<AbstractCommand>[]
 }
 
-export const Command = (options: CommandOptionsInterface): ClassDecorator => (target) => defineClassMetadata(target, COMMAND_OPTIONS, options)
+export const Command =
+  (options: CommandOptionsInterface): ClassDecorator =>
+  (target) =>
+    defineClassMetadata(target, COMMAND_OPTIONS, options)
 
 // export const Command =
 //   (options: CommandOptionsInterface): ClassDecorator =>

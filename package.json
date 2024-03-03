@@ -8,5 +8,8 @@
       "packages/cli"
     ]
   },
-  "packageManager": "yarn@4.0.1"
+  "packageManager": "yarn@4.0.1",
+  "scripts": {
+    "format": "yarn workspaces foreach --all  --parallel --verbose run format"
+  }
 }
