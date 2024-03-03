@@ -17,7 +17,7 @@ export abstract class AbstractMetadataContainer<T extends { token: string }> {
     this.metadata[metadata.token] = metadata
   }
 
-  get(token: string): T | undefined {
+  get<R>(token: string): R | T | undefined {
     return this.metadata[token]
   }
 }

@@ -4,7 +4,8 @@
   "workspaces": {
     "packages": [
       "packages/framework",
-      "packages/lambda-http"
+      "packages/lambda-http",
+      "packages/cli"
     ]
   },
   "packageManager": "yarn@4.0.1"
