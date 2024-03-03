@@ -1,7 +1,7 @@
 import { Provider, isTokenProvider, isValueProvider } from './provider'
 import { INJECTABLES } from './constants'
 
-export abstract class AbstractApplicationContainer<HandlerType> {
+export abstract class AbstractApplicationContainer {
   protected readonly providers: { [s: string]: Provider } = {}
   protected readonly instancedProviders: { [s: string]: any } = {}
 
@@ -45,5 +45,5 @@ export abstract class AbstractApplicationContainer<HandlerType> {
     return this.resovleProvider(token)
   }
 
-  abstract handle: HandlerType
+  abstract handle(...any: any[]): any
 }

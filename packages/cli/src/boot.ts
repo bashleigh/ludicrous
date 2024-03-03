@@ -2,16 +2,13 @@ import { AbstractCommand, GlobalConfig } from './abstract.command'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { ARGUMENT_OPTIONS, ArgOptionsInterface, COMMAND_OPTIONS, CommandOptionsInterface } from './decorators'
-import { constructor, Provider, AbstractMetadataContainer } from '@reapit-ludicrous/framework'
+import { constructor, Provider, AbstractApplicationContainer } from '@reapit-ludicrous/framework'
 
 export const isCommandConfig = (
   config: CommandOptionsInterface | { default: true },
 ): config is CommandOptionsInterface => Object.prototype.hasOwnProperty.call(config, 'name')
 
-class Container extends AbstractMetadataContainer<any> {}
-
-export class Boot {
-  private readonly container: Container = new Container()
+export class Boot extends AbstractApplicationContainer {
   private commandNameArgs: string[] = []
   private childNamedArgs: string[] = []
   private args: { [s: string]: any } = {}
@@ -52,16 +49,16 @@ export class Boot {
       childParameters: this.childNamedArgs.map((param) => param.toString()),
     }
 
-    this.container.add({
+    this.add({
       token: 'GlobalConfig',
-      value: globalConfig,
+      useValue: globalConfig,
     })
 
-    providers?.forEach((provider) => this.container.add(provider))
+    providers?.forEach((provider) => this.add(provider))
     commands.forEach((command) => {
       const commandConfig: CommandOptionsInterface | undefined = Reflect.getOwnMetadata(COMMAND_OPTIONS, command)
       if (!commandConfig) throw new Error(`Command config not found for [${command.prototype}]`)
-      this.container.add({
+      this.add({
         token: commandConfig.name,
         useClass: command,
       })
@@ -69,7 +66,7 @@ export class Boot {
       // TODO need to make this multi level recursive
       commandConfig.children?.map((child) => {
         const childCommandConfig = Reflect.getOwnMetadata(COMMAND_OPTIONS, child)
-        this.container.add({
+        this.add({
           token: `${commandConfig.name} ${childCommandConfig.name}`,
           useClass: child,
         })
@@ -110,7 +107,7 @@ export class Boot {
   /**
    * init arguments, bootstrap container, find relevant command and run it
    */
-  public async run({
+  public async handle({
     commandName,
     providers,
     commands,
@@ -123,7 +120,7 @@ export class Boot {
 
     this.bootstrapContainer({ providers, commands, commandName })
 
-    const command = this.container.get<AbstractCommand>(this.commandNameArgs.map((arg) => arg.toString()).join(' '))
+    const command = this.get<AbstractCommand>(this.commandNameArgs.map((arg) => arg.toString()).join(' '))
 
     if (!command) {
       console.log('No command found')
