@@ -9,6 +9,7 @@ export default defineConfig({
   minify: true,
   clean: true,
   dts: true,
+  treeshake: true,
   esbuildOptions: (opts) => {
     opts.resolveExtensions = ['.ts', '.mjs', '.js']
   },

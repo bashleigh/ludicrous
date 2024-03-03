@@ -82,6 +82,8 @@ class MyApplicationContainer extends AbstractApplicationContainer {
     const routeMetadata = this.get<RouteMetadataContainer>('route-metadata')
 
     const metadata = routeMetadata.resolvePathToRoute('controller/method', 'GET')
+
+    console.log(metadata) // { controllerToken: 'TestController', method: 'myHandler', httpMethod: 'GET', token: 'controller/method' }
   }
 }
 

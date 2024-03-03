@@ -7,6 +7,7 @@ export default defineConfig({
   entry: ['src/index.ts'],
   target: 'node16',
   minify: true,
+  treeshake: true,
   clean: true,
   dts: true,
   esbuildOptions: (opts) => {
