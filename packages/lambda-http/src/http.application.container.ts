@@ -5,7 +5,7 @@ import { ArgumentMetadata } from "./decorators"
 import { HttpException, NotFoundException } from "./exceptions"
 import { ARGUMENT } from "./constants"
 
-export class HttpApplicationContainer extends AbstractApplicationContainer<Handler> {
+export class HttpApplicationContainer extends AbstractApplicationContainer {
   private mapArgumentMetadataToValues(
     { name, type }: ArgumentMetadata,
     {

@@ -20,20 +20,13 @@ export class Boot {
       routeLogging: true,
     },
   ) {
-    // const metadataContainer = new MetadataContainer(bootLogging)
     const routeMetadata = new RouteMetadataContainer(bootLogging)
-    // TODO find a solution to conditionally change the imported class for development
     const container = new HttpApplicationContainer(routeLogging)
 
     providers.forEach((provider) => {
       const isController = Reflect.hasOwnMetadata(CONTROLLER, provider)
       const isFunction = isConstructorProvider(provider)
 
-      // metadataContainer.add({
-      //   type: isController ? 'controller' : 'provider',
-      //   provider,
-      //   token: !isFunction ? provider.token : provider.constructor.name,
-      // })
       container.add(provider)
 
       if (isFunction && isController) {
@@ -56,17 +49,10 @@ export class Boot {
       }
     })
 
-    // container.add({
-    //   token: MetadataContainer.name,
-    //   useValue: metadataContainer,
-    // })
-
     container.add({
       token: RouteMetadataContainer.name,
       useValue: routeMetadata,
     })
-
-    // container.add(AuthenticationProvider)
 
     bootLogging && console.log('Application successfully booted')
 
