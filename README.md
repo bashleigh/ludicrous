@@ -9,3 +9,4 @@ A collection of tiny TypeScript frameworks built specifically for cli, Lambda an
 - <a href="packages/framework">Framework</a>
 - <a href="packages/lambda-http">lambda-http</a>
 - <a href="packages/cli">cli</a>
+- <a href="packages/lambda-exec/">lambda-exec</a>
