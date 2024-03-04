@@ -1,0 +1,12 @@
+{
+  "name": "lambda-exec",
+  "packageManager": "yarn@4.0.1",
+  "dependencies": {
+    "@reapit-ludicrous/framework": "workspace:^",
+    "reflect-metadata": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.134",
+    "aws-lambda": "^1.0.7"
+  }
+}

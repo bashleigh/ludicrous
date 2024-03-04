@@ -967,7 +967,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@reapit-ludicrous/framework@workspace:packages/framework":
+"@reapit-ludicrous/framework@workspace:^, @reapit-ludicrous/framework@workspace:packages/framework":
   version: 0.0.0-use.local
   resolution: "@reapit-ludicrous/framework@workspace:packages/framework"
   dependencies:
@@ -3514,6 +3514,17 @@ __metadata:
   checksum: 0c0ecaf00a5c6173d25059c7db2113850b5457016dfa1d0e3ef26da4704fbb186b4938d7611246d86f0ddf1bccf26828daa5877b1f232a65e7373d0122a83e7f
   languageName: node
   linkType: hard
+
+"lambda-exec@workspace:packages/lambda-exec":
+  version: 0.0.0-use.local
+  resolution: "lambda-exec@workspace:packages/lambda-exec"
+  dependencies:
+    "@reapit-ludicrous/framework": "workspace:^"
+    "@types/aws-lambda": "npm:^8.10.134"
+    aws-lambda: "npm:^1.0.7"
+    reflect-metadata: "npm:^0.2.1"
+  languageName: unknown
+  linkType: soft
 
 "leven@npm:^3.1.0":
   version: 3.1.0
