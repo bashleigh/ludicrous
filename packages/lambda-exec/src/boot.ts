@@ -5,13 +5,13 @@ export class Boot {
   static application({providers, controller }: {
     providers: Provider[],
     controller: constructor<any>,
-  }, { bootLogging = false }: {
+  }, options?: {
     bootLogging: boolean
   }) {
     const application = new ExecApplicationContainer()
     providers.forEach(provider => application.add(provider))
 
-    application.addController(controller, bootLogging)
+    application.addController(controller, options?.bootLogging ?? true)
 
     return application
   }
