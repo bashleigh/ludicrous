@@ -1,0 +1,9 @@
+@import '~@reapit/elements/dist/index.css';
+
+code {
+  width: 100%;
+  display: block;
+  background: lightgrey;
+  padding: 1rem .5rem;
+  margin: .5rem 0;
+}

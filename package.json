@@ -6,7 +6,8 @@
       "packages/framework",
       "packages/lambda-http",
       "packages/cli",
-      "packages/lambda-exec"
+      "packages/lambda-exec",
+      "packages/lambda-dev"
     ]
   },
   "packageManager": "yarn@4.0.1",

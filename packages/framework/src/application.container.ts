@@ -1,4 +1,4 @@
-import { Provider, isTokenProvider, isValueProvider } from './provider'
+import { Provider, isFactoryProvider, isTokenProvider, isValueProvider } from './provider'
 import { INJECTABLES } from './constants'
 
 export abstract class AbstractApplicationContainer {
@@ -8,7 +8,7 @@ export abstract class AbstractApplicationContainer {
   constructor(protected readonly routeLogging: boolean = true) {}
 
   add(provider: Provider) {
-    isValueProvider(provider) || isTokenProvider(provider)
+    isValueProvider(provider) || isTokenProvider(provider) || isFactoryProvider(provider)
       ? (this.providers[provider.token] = provider)
       : (this.providers[provider.name] = provider)
   }
@@ -22,6 +22,9 @@ export abstract class AbstractApplicationContainer {
       )
 
     if (isValueProvider(provider)) return provider.useValue
+    if (isFactoryProvider(provider)) {
+      return provider.useFactory() // TODO resolve injectables?
+    }
 
     const providerClass = isTokenProvider(provider) ? provider.useClass : provider
 
