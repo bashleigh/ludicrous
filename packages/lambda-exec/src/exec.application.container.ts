@@ -1,6 +1,6 @@
-import { AbstractApplicationContainer, constructor } from "@reapit-ludicrous/framework"
-import { APIGatewayEvent } from "aws-lambda"
-import { HANDLE } from "./decorators/handle"
+import { AbstractApplicationContainer, constructor } from '@reapit-ludicrous/framework'
+import { APIGatewayEvent } from 'aws-lambda'
+import { HANDLE } from './decorators/handle'
 
 export class ExecApplicationContainer extends AbstractApplicationContainer {
   private controllerToken?: string
@@ -11,7 +11,10 @@ export class ExecApplicationContainer extends AbstractApplicationContainer {
     this.controllerToken = provider.name
     this.method = Reflect.getOwnMetadata(HANDLE, provider.prototype)
 
-    if (this.method === undefined) throw new Error('Given controller doesn\'t have a defined handle method. Please add the Handle decorator to your controller\'s entry point')
+    if (this.method === undefined)
+      throw new Error(
+        "Given controller doesn't have a defined handle method. Please add the Handle decorator to your controller's entry point",
+      )
 
     bootLogging && console.log(`Application booted with [${this.controllerToken}].${this.method}`)
   }

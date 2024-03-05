@@ -1,6 +1,6 @@
-import { Boot } from "./boot"
-import { Handle } from "./decorators"
-import { ExecApplicationContainer } from "./exec.application.container"
+import { Boot } from './boot'
+import { Handle } from './decorators'
+import { ExecApplicationContainer } from './exec.application.container'
 
 describe('Boot', () => {
   it('Static application method will return instance of ExecApplicationContainer', () => {
@@ -14,8 +14,7 @@ describe('Boot', () => {
   })
 
   it('Static application method will throw error if class has no handle method', () => {
-    class Controller {
-    }
+    class Controller {}
 
     try {
       const application = Boot.application({ providers: [], controller: Controller }, { bootLogging: false })

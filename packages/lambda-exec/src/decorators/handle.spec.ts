@@ -1,4 +1,4 @@
-import { HANDLE, Handle } from "./handle"
+import { HANDLE, Handle } from './handle'
 
 describe('Handle', () => {
   it('Can set handle', () => {

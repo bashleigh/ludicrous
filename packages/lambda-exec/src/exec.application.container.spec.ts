@@ -1,7 +1,7 @@
-import { Provide } from "@reapit-ludicrous/framework"
-import { Boot } from "./boot"
-import { Handle } from "./decorators"
-import { APIGatewayEvent } from "aws-lambda"
+import { Provide } from '@reapit-ludicrous/framework'
+import { Boot } from './boot'
+import { Handle } from './decorators'
+import { APIGatewayEvent } from 'aws-lambda'
 
 describe('ExecApplicationContainer', () => {
   it('Can instance provider using DI from container', () => {
@@ -9,20 +9,21 @@ describe('ExecApplicationContainer', () => {
     class ProviderTest {}
 
     class Controller {
-      constructor(
-        public readonly provider: ProviderTest,
-      ) {}
+      constructor(public readonly provider: ProviderTest) {}
 
       @Handle()
       myMethod() {}
     }
 
-    const application = Boot.application({
-      providers: [ProviderTest],
-      controller: Controller,
-    }, {
-      bootLogging: false,
-    })
+    const application = Boot.application(
+      {
+        providers: [ProviderTest],
+        controller: Controller,
+      },
+      {
+        bootLogging: false,
+      },
+    )
 
     const instanced = application.get(Controller)
 
@@ -30,7 +31,6 @@ describe('ExecApplicationContainer', () => {
   })
 
   it('Calling application.handle will call controller.handle', () => {
-
     const method = jest.fn()
 
     class Controller {
@@ -40,12 +40,15 @@ describe('ExecApplicationContainer', () => {
       }
     }
 
-    const application = Boot.application({
-      providers: [],
-      controller: Controller,
-    }, {
-      bootLogging: false,
-    })
+    const application = Boot.application(
+      {
+        providers: [],
+        controller: Controller,
+      },
+      {
+        bootLogging: false,
+      },
+    )
 
     application.handle({} as APIGatewayEvent)
 
