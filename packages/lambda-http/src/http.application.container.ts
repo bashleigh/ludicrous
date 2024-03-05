@@ -1,13 +1,13 @@
-import { AbstractApplicationContainer } from "@reapit-ludicrous/framework"
-import { APIGatewayProxyEvent, Handler, Context } from "aws-lambda"
-import { RouteMetadataContainer } from "./route.metadata.container"
-import { ArgumentMetadata } from "./decorators"
-import { HttpException, NotFoundException } from "./exceptions"
-import { ARGUMENT } from "./constants"
+import { AbstractApplicationContainer } from '@reapit-ludicrous/framework'
+import { APIGatewayProxyEvent, Handler, Context } from 'aws-lambda'
+import { RouteMetadataContainer } from './route.metadata.container'
+import { ArgumentMetadata } from './decorators'
+import { HttpException, NotFoundException } from './exceptions'
+import { ARGUMENT } from './constants'
 
 export class HttpApplicationContainer extends AbstractApplicationContainer {
   private mapArgumentMetadataToValues(
-    { name, type }: ArgumentMetadata,
+    { name, type, options }: ArgumentMetadata,
     {
       parameters,
       query,
@@ -16,7 +16,7 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
     }: {
       parameters: { [s: string]: any }
       query: { [s: string]: any } | null
-      body: any
+      body: string | null
       identity: any
     },
   ): any {
@@ -26,7 +26,7 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
       case 'PARAMETER':
         return parameters[name as string]
       case 'BODY':
-        return body
+        return options?.parseJson ? JSON.parse(body || '{}') : body
       case 'IDENTITY':
         return identity // TODO need to be resolved from authentication provider
     }
