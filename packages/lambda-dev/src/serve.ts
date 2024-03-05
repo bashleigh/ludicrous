@@ -1,6 +1,6 @@
 import http from 'http'
 import { HttpApplicationContainer } from '../../lambda-http/src/http.application.container'
-import { Context } from 'aws-lambda'
+import { Context, APIGatewayProxyEvent } from 'aws-lambda'
 import { ProfilerProvider } from './profiler.provider'
 import { ProfilerController } from './profiler.controller'
 import { RouteMetadataContainer } from '../../lambda-http/src/route.metadata.container'
@@ -68,11 +68,12 @@ export const serve = async ({
         const [path, query] = url.split('?')
         let start
 
-        const mockEvent = {
+        const mockEvent: Partial<APIGatewayProxyEvent> = {
           path,
-          httpMethod: request.method,
+          httpMethod: request.method || '',
           queryStringParameters: Object.fromEntries(new URLSearchParams(query)),
           body: body?.toString() || null,
+          headers: request?.headers as {[s: string]: string },
         }
 
         if (profiler) {

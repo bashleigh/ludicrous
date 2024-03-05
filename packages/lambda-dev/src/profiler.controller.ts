@@ -7,7 +7,6 @@ export class ProfilerController {
     private readonly requestProfiler: ProfilerProvider,
   ) {}
 
-
   @Get('')
   getEvents() {
     return this.requestProfiler.getRequests()
