@@ -11,11 +11,11 @@ A collection of tiny TypeScript frameworks built specifically for cli, Lambda an
 - <a href="packages/cli">cli</a>
 - <a href="packages/lambda-exec/">lambda-exec</a>
 
-<a href="packages/framework"><h3>Framework</h3></a>
+[packages/framework](###Framework)
 
 The `@reapit-ludicrous/framework` package is a small DI application container. Designed to store metadata about a series of given classes and resolve their instanced state when requested and cache their instance for future requests.
 
-<a href="packages/lambda-http"><h3>Lambda-http</h3></a>
+[packages/lambda-http](###Lambda-http)
 
 The `@reapit-ludicrous/lambda-http` package an extention of the `framework` package that also includes http handling specifically for lambda proxy api gateway requests. 
 The package includes everything the framework package offers plus http-ness stuffs.
@@ -60,3 +60,43 @@ class MyController {
 ```
 The above example will resolve the parameter within the path `things/12345` where `12345` is parameter named `id`. To the `id` property of the method. 
 If a query string is present (`things/12345?sort=asc`) with a key of `sort` it will be provided to the `sort` property on the method.
+
+[packages/cli](###Cli)
+A Tiny containerised Cli framework for providing mutli command based actions
+
+```ts
+import { Command, Arg, Boot } from '@reapit-ludicrous/cli'
+
+@Command({
+  name: 'my-command',
+  description: 'This is an example command',
+})
+class MyCommand extends AbstractCommand {
+  run(
+    @Arg({
+      name: 'argument',
+      description: 'an example argument',
+    })
+    argument: string,
+    @Arg({
+      name: 'optional',
+      description: 'an example of an optional boolean',
+      type: 'boolean',
+      alias: 'o',
+    })
+    optional: boolean,
+  ) {
+    console.log('arguments', argument, options)
+  }
+}
+
+const cli = new Boot()
+
+cli.run({
+  commandName: 'my-command-name',
+  commands: [ MyCommand ],
+})
+```
+
+The above can then be ran by `index.ts my-command --argument test -o`
+
