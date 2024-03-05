@@ -8,7 +8,7 @@ class TestController {
   async body(@Body() body: any) {
     console.log('body', body)
 
-    return 'body'
+    return { body: body }
   }
 }
 

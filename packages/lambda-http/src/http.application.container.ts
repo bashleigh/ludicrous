@@ -19,7 +19,7 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
       query: { [s: string]: any } | null
       body: string | null
       identity: any
-      event: APIGatewayProxyEvent,
+      event: APIGatewayProxyEvent
     },
   ): any {
     switch (type) {

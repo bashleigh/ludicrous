@@ -25,18 +25,19 @@ const Profiler: FC<any> = () => {
         content: <>
           <Subtitle>Event</Subtitle>
           <Label>Body</Label>
-          <code>{event.event?.body}</code>
+          <pre>{event.event?.body}</pre>
           <Label>Headers</Label>
-          <code>{event.event?.headers}</code>
+          <pre>{event.event?.headers}</pre>
           <Subtitle>Response</Subtitle>
           <Label>Body</Label>
-          <code>{event.response?.body}</code>
+          <pre>{JSON.stringify(event.response?.body, undefined, 2)}</pre>
           <Label>Headers</Label>
-          <code>{event.response?.headers}</code>
+          <pre>{event.response?.headers}</pre>
         </>,
-        title: event.event.path,
+        title: `${event.event.path}`,
         titleItems: [
           <Badge>{event.event.httpMethod}</Badge>,
+          <Badge>{event.executionTime}</Badge>
         ],
       }))} />
     </>

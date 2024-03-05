@@ -66,6 +66,7 @@ export const serve = async ({
       request.on('end', async () => {
         const url = request.url || ''
         const [path, query] = url.split('?')
+        let start
 
         const mockEvent = {
           path,
@@ -75,19 +76,28 @@ export const serve = async ({
         }
 
         if (profiler) {
-
-          console.log('path', path)
-
           if (path === '/profiler' || path.includes('_next')) { // check starts with
             console.log('profiler rendering react', next)
             next?.getRequestHandler()(request, response) // remove profiler prefix and return path
             return
-          } else if (path !== '/api/profiler/') profilerProvider.addEvent(mockEvent)
+          } else if (path !== '/api/profiler') {
+            start = process.hrtime()
+
+            const routeMetadata = application.get<RouteMetadataContainer>(RouteMetadataContainer)
+
+            const route = routeMetadata.resolvePathToRouteMetadata(path.replace(/^\//, ''), request.method?.toUpperCase() || '')
+
+            profilerProvider.addEvent(mockEvent, route)
+          }
         }
 
         const result = await application.handle(mockEvent, {} as Context, () => {})
 
-        if (profiler && path !== '/profiler' && path !== '/api/profiler' && !path.includes('_next')) profilerProvider.addResponse(path, result)
+        if (profiler && path !== '/profiler' && path !== '/api/profiler' && !path.includes('_next')) {
+          const elapsed = process.hrtime(start)[1] / 1000000
+          const executionTime = process.hrtime(start)[0] + " s, " + elapsed.toFixed(3) + " ms"
+          profilerProvider.addResponse(path, result, executionTime)
+        }
 
         response.writeHead(result.statusCode)
         response.end(

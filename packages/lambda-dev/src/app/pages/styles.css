@@ -1,6 +1,6 @@
 @import '~@reapit/elements/dist/index.css';
 
-code {
+pre {
   width: 100%;
   display: block;
   background: lightgrey;
