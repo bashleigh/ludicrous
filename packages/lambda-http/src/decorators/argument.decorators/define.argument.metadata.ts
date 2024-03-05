@@ -7,14 +7,15 @@ export interface ArgumentMetadata {
   method: string | symbol | undefined
   propertyIndex: number
   target: Object
+  options?: any
 }
 
-export const defineArgumentMetadata = ({ name, type, method, propertyIndex, target }: ArgumentMetadata) => {
+export const defineArgumentMetadata = ({ name, type, method, propertyIndex, target, options }: ArgumentMetadata) => {
   Reflect.defineMetadata(
     `${ARGUMENT}::${method?.toString()}`,
     [
       ...(Reflect.getMetadata(`${ARGUMENT}::${method?.toString()}`, target) || []),
-      { type, name, method: method, propertyIndex },
+      { type, name, method: method, propertyIndex, options },
     ].sort((a, b) => a.propertyIndex - b.propertyIndex),
     target,
   )

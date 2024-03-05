@@ -44,6 +44,16 @@ serve({
 })
 ```
 
+#### Profiler
+
+When using the `serve` method. The profiler will be automatically added to your application. You can then hit the endpoint `/profiler` to get info about logged requests and their responses.
+
+To diable the profiler on dev, use the following configuration 
+
+```ts
+const application = Boot.application({ providers: [] }, { profiler: false })
+```
+
 ### Write your first Controller
 
 Below is an example of how controllers are defined within the application 
