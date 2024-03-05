@@ -11,11 +11,13 @@ A collection of tiny TypeScript frameworks built specifically for cli, Lambda an
 - <a href="packages/cli">cli</a>
 - <a href="packages/lambda-exec/">lambda-exec</a>
 
-[packages/framework](##Framework)
+### Framework
+[packages/framework](See docs)
 
 The `@reapit-ludicrous/framework` package is a small DI application container. Designed to store metadata about a series of given classes and resolve their instanced state when requested and cache their instance for future requests.
 
-[packages/lambda-http](##Lambda-http)
+### Lambda-http
+[packages/lambda-http](See docs)
 
 The `@reapit-ludicrous/lambda-http` package an extention of the `framework` package that also includes http handling specifically for lambda proxy api gateway requests. 
 The package includes everything the framework package offers plus http-ness stuffs.
@@ -61,7 +63,8 @@ class MyController {
 The above example will resolve the parameter within the path `things/12345` where `12345` is parameter named `id`. To the `id` property of the method. 
 If a query string is present (`things/12345?sort=asc`) with a key of `sort` it will be provided to the `sort` property on the method.
 
-[packages/cli](##Cli)
+### Cli
+[packages/cli](See docs)
 
 A Tiny containerised Cli framework for providing mutli command based actions
 
