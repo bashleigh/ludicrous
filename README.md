@@ -12,7 +12,7 @@ A collection of tiny TypeScript frameworks built specifically for cli, Lambda an
 - <a href="packages/lambda-exec/">lambda-exec</a>
 
 ### Framework
-[##See docs](packages/framework)
+[See docs](packages/framework)
 
 The `@reapit-ludicrous/framework` package is a small DI application container. Designed to store metadata about a series of given classes and resolve their instanced state when requested and cache their instance for future requests.
 
