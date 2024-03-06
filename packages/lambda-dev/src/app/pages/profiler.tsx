@@ -6,7 +6,6 @@ import {
   Label,
   Loader,
   MainContainer,
-  MediaStateProvider,
   NavResponsive,
   NavStateProvider,
   PageContainer,
@@ -96,7 +95,6 @@ const Profiler: FC<any> = () => {
 
 export default () => (
   <NavStateProvider>
-    {/* <MediaStateProvider> */}
     <MainContainer>
       <NavResponsive options={[]} />
       <FlexContainer isFlexAuto>
@@ -124,6 +122,5 @@ export default () => (
         </PageContainer>
       </FlexContainer>
     </MainContainer>
-    {/* </MediaStateProvider> */}
   </NavStateProvider>
 )
