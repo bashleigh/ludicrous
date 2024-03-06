@@ -1,5 +1,24 @@
-import { Accordion, Badge, FlexContainer, Intent, Label, Loader, MainContainer, MediaStateProvider, NavResponsive, NavStateProvider, PageContainer, PageHeader, SecondaryNav, SecondaryNavContainer, SecondaryNavItem, Subtitle, Title } from '@reapit/elements'
+import {
+  Accordion,
+  Badge,
+  FlexContainer,
+  Intent,
+  Label,
+  Loader,
+  MainContainer,
+  MediaStateProvider,
+  NavResponsive,
+  NavStateProvider,
+  PageContainer,
+  PageHeader,
+  SecondaryNav,
+  SecondaryNavContainer,
+  SecondaryNavItem,
+  Subtitle,
+  Title,
+} from '@reapit/elements'
 import React, { FC, useEffect, useState } from 'react'
+import Link from 'next/link'
 
 const methodToIntent = (method: string): Intent => {
   switch (method) {
@@ -15,6 +34,14 @@ const methodToIntent = (method: string): Intent => {
     default:
       return 'default'
   }
+}
+
+const statusCodeToIntent = (statusCode: number): Intent => {
+  if (statusCode >= 200 && statusCode <= 299) return 'success'
+  else if (statusCode >= 300 && statusCode <= 399) return 'primary'
+  else if (statusCode >= 400 && statusCode <= 499) return 'warning'
+  else if (statusCode >= 500 && statusCode <= 599) return 'danger'
+  return 'default'
 }
 
 const Profiler: FC<any> = () => {
@@ -35,27 +62,34 @@ const Profiler: FC<any> = () => {
     fetchEvents()
   }, [])
 
-  return loading ? <Loader /> : (
+  return loading ? (
+    <Loader />
+  ) : (
     <>
-      <Accordion items={events.reverse().map(event => ({
-        content: <>
-          <Subtitle>Event</Subtitle>
-          <Label>Body</Label>
-          <pre>{event.event?.body}</pre>
-          <Label>Headers</Label>
-          <pre>{JSON.stringify(event.event?.headers, undefined, 2)}</pre>
-          <Subtitle>Response</Subtitle>
-          <Label>Body</Label>
-          <pre>{JSON.stringify(event.response?.body, undefined, 2)}</pre>
-          <Label>Headers</Label>
-          <pre>{JSON.stringify(event.response?.headers, undefined, 2)}</pre>
-        </>,
-        title: `${event.event.path}`,
-        titleItems: [
-          <Badge intent={methodToIntent(event.event.httpMethod)}>{event.event.httpMethod}</Badge>,
-          <Badge>{event.executionTime}</Badge>
-        ],
-      }))} />
+      <Accordion
+        items={events.reverse().map((event) => ({
+          content: (
+            <>
+              <Subtitle>Event</Subtitle>
+              <Label>Body</Label>
+              <pre>{event.event?.body}</pre>
+              <Label>Headers</Label>
+              <pre>{JSON.stringify(event.event?.headers, undefined, 2)}</pre>
+              <Subtitle>Response</Subtitle>
+              <Label>Body</Label>
+              <pre>{JSON.stringify(event.response?.body, undefined, 2)}</pre>
+              <Label>Headers</Label>
+              <pre>{JSON.stringify(event.response?.headers, undefined, 2)}</pre>
+            </>
+          ),
+          title: `${event.event.path}`,
+          titleItems: [
+            <Badge intent={methodToIntent(event.event.httpMethod)}>{event.event.httpMethod}</Badge>,
+            <Badge>{event.executionTime}</Badge>,
+            <Badge intent={statusCodeToIntent(event.response.statusCode)}>{event.response.statusCode}</Badge>,
+          ],
+        }))}
+      />
     </>
   )
 }
@@ -63,33 +97,33 @@ const Profiler: FC<any> = () => {
 export default () => (
   <NavStateProvider>
     {/* <MediaStateProvider> */}
-      <MainContainer>
-        <NavResponsive options={[]} />
-        <FlexContainer isFlexGrow1>
-          <SecondaryNavContainer>
-              <SecondaryNav>
-                <SecondaryNavItem
-                  active
-                  onClick={function Qa(){}}
-                >
-                  Profiler
-                </SecondaryNavItem>
-                <SecondaryNavItem
-                  onClick={function Qa(){}}
-                >
-                  Routes
-                </SecondaryNavItem>
-              </SecondaryNav>
-            </SecondaryNavContainer>
-            <PageContainer>
-              <PageHeader pageTitle={{
-                  children: 'Profiler',
-                  hasBoldText: true
-                }} />
-                  <Profiler />
-            </PageContainer>
-        </FlexContainer>
-      </MainContainer>
+    <MainContainer>
+      <NavResponsive options={[]} />
+      <FlexContainer isFlexAuto>
+        <SecondaryNavContainer>
+          <SecondaryNav>
+            <SecondaryNavItem
+              active
+            >
+              <Link href="/profiler">Profiler</Link>
+            </SecondaryNavItem>
+            <SecondaryNavItem
+            >
+              <Link href="/profiler/routes">Routes</Link>
+            </SecondaryNavItem>
+          </SecondaryNav>
+        </SecondaryNavContainer>
+        <PageContainer className="el-hfull">
+          <PageHeader
+            pageTitle={{
+              children: 'Profiler',
+              hasBoldText: true,
+            }}
+          />
+          <Profiler />
+        </PageContainer>
+      </FlexContainer>
+    </MainContainer>
     {/* </MediaStateProvider> */}
   </NavStateProvider>
 )

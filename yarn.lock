@@ -3842,6 +3842,7 @@ __metadata:
     "@types/react-dom": "npm:^18"
     next: "npm:^14.1.2"
     nodemon: "npm:^3.1.0"
+    prettier: "npm:^3.2.5"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     ts-node: "npm:^10.9.2"

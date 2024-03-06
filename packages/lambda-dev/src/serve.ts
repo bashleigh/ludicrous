@@ -36,9 +36,6 @@ export const serve = async ({
     const methods = Reflect.ownKeys(ProfilerController.prototype)
 
     methods?.forEach((method) => {
-      // @ts-ignore
-      console.log('method', method, ProfilerController.prototype, ProfilerController.prototype[method])
-
       const methodMetadata = Reflect.getMetadata(METHOD, (ProfilerController.prototype as any)[method as any] as any)
 
       if (!methodMetadata) return
@@ -73,20 +70,22 @@ export const serve = async ({
           httpMethod: request.method || '',
           queryStringParameters: Object.fromEntries(new URLSearchParams(query)),
           body: body?.toString() || null,
-          headers: request?.headers as {[s: string]: string },
+          headers: request?.headers as { [s: string]: string },
         }
 
         if (profiler) {
-          if (path === '/profiler' || path.includes('_next')) { // check starts with
-            console.log('profiler rendering react', next)
-            next?.getRequestHandler()(request, response) // remove profiler prefix and return path
+          if (path.startsWith('/profiler') || path.includes('_next')) {
+            next?.getRequestHandler()(request, response)
             return
           } else if (path !== '/api/profiler') {
             start = process.hrtime()
 
             const routeMetadata = application.get<RouteMetadataContainer>(RouteMetadataContainer)
 
-            const route = routeMetadata.resolvePathToRouteMetadata(path.replace(/^\//, ''), request.method?.toUpperCase() || '')
+            const route = routeMetadata.resolvePathToRouteMetadata(
+              path.replace(/^\//, ''),
+              request.method?.toUpperCase() || '',
+            )
 
             profilerProvider.addEvent(mockEvent, route)
           }
@@ -96,7 +95,7 @@ export const serve = async ({
 
         if (profiler && path !== '/profiler' && path !== '/api/profiler' && !path.includes('_next')) {
           const elapsed = process.hrtime(start)[1] / 1000000
-          const executionTime = process.hrtime(start)[0] + " s, " + elapsed.toFixed(3) + " ms"
+          const executionTime = process.hrtime(start)[0] + ' s, ' + elapsed.toFixed(3) + ' ms'
           profilerProvider.addResponse(path, result, executionTime)
         }
 
