@@ -2,7 +2,6 @@ import {
   Accordion,
   Badge,
   FlexContainer,
-  Intent,
   Label,
   Loader,
   MainContainer,
@@ -14,34 +13,10 @@ import {
   SecondaryNavContainer,
   SecondaryNavItem,
   Subtitle,
-  Title,
 } from '@reapit/elements'
 import React, { FC, useEffect, useState } from 'react'
 import Link from 'next/link'
-
-const methodToIntent = (method: string): Intent => {
-  switch (method) {
-    case 'GET':
-      return 'primary'
-    case 'POST':
-      return 'success'
-    case 'PUT':
-    case 'PATCH':
-      return 'low'
-    case 'DELETE':
-      return 'danger'
-    default:
-      return 'default'
-  }
-}
-
-const statusCodeToIntent = (statusCode: number): Intent => {
-  if (statusCode >= 200 && statusCode <= 299) return 'success'
-  else if (statusCode >= 300 && statusCode <= 399) return 'primary'
-  else if (statusCode >= 400 && statusCode <= 499) return 'warning'
-  else if (statusCode >= 500 && statusCode <= 599) return 'danger'
-  return 'default'
-}
+import { methodToIntent, statusCodeToIntent } from '../utils'
 
 const Profiler: FC<any> = () => {
   const [events, setEvents] = useState<any[]>([])

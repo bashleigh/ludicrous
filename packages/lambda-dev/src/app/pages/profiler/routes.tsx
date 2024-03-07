@@ -37,7 +37,7 @@ const methodToIntent = (method: string): Intent => {
 }
 
 const Routes: FC<any> = () => {
-  const [routes, setRoutes] = useState<any[]>([])
+  const [routes, setRoutes] = useState<Object>({})
   const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
@@ -58,7 +58,15 @@ const Routes: FC<any> = () => {
     <Loader />
   ) : (
     <>
-      <h1>Routes</h1>
+      {Object.entries(routes).map(([path, routeInfo]) => (
+        <div key={path}>
+          <Badge intent={methodToIntent(path.split('-')[0])}>{path.split('-')[0]}</Badge>
+          {path.split('-')[1]}
+          <div>
+            {routeInfo.controllerToken}.{routeInfo.method}
+          </div>
+        </div>
+      ))}
     </>
   )
 }
@@ -85,7 +93,7 @@ export default () => (
         <PageContainer className="el-hfull">
           <PageHeader
             pageTitle={{
-              children: 'Router',
+              children: 'Routes',
               hasBoldText: true,
             }}
           />
