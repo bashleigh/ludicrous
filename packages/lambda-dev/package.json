@@ -1,0 +1,21 @@
+{
+  "name": "lambda-dev",
+  "packageManager": "yarn@4.0.1",
+  "dependencies": {
+    "@reapit/elements": "^4.1.0",
+    "next": "^14.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "format": "prettier src --write"
+  }
+}

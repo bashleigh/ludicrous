@@ -7,9 +7,10 @@ A collection of tiny TypeScript frameworks built specifically for cli, Lambda an
 ## Packages
 
 - <a href="packages/framework">Framework</a>
-- <a href="packages/lambda-http">lambda-http</a>
 - <a href="packages/cli">cli</a>
+- <a href="packages/lambda-http">lambda-http</a>
 - <a href="packages/lambda-exec/">lambda-exec</a>
+- <a href="packages/lambda-dev/">lambda-dev</a>
 
 ### Framework
 [See docs](packages/framework)
@@ -62,6 +63,26 @@ class MyController {
 ```
 The above example will resolve the parameter within the path `things/12345` where `12345` is parameter named `id`. To the `id` property of the method. 
 If a query string is present (`things/12345?sort=asc`) with a key of `sort` it will be provided to the `sort` property on the method.
+
+### Lambda-dev
+
+Lambda dev is a small development server that will enable the running of lambda-http application on your local machine complete with telemetry.
+
+```ts
+import { Boot } from '@reapit-ludicrous/lambda-http'
+import { serve } from '@reapit-ludicrous/lambda-dev'
+
+const application = Boot.application({
+  providers: [TestController],
+})
+
+serve({ application })
+
+```
+
+Now navigate to `localhost:3000` and view the profiler
+
+![Profiler](packages/lambda-dev/profiler-example.png)
 
 ### Cli
 [See docs](packages/cli)

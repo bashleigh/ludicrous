@@ -3,7 +3,7 @@ import 'reflect-metadata'
 
 export interface ArgumentMetadata {
   name?: string
-  type: 'QUERY' | 'PARAMETER' | 'BODY' | 'IDENTITY' | 'HEADER'
+  type: 'QUERY' | 'PARAMETER' | 'BODY' | 'IDENTITY' | 'HEADER' | 'EVENT'
   method: string | symbol | undefined
   propertyIndex: number
   target: Object

@@ -53,4 +53,8 @@ export class RouteMetadataContainer extends AbstractMetadataContainer<RouteMetad
       pathReg: pathToRegexp(fullPath),
     })
   }
+
+  getAll() {
+    return this.metadata
+  }
 }

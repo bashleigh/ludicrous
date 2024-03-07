@@ -13,11 +13,13 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
       query,
       body,
       identity,
+      event,
     }: {
       parameters: { [s: string]: any }
       query: { [s: string]: any } | null
       body: string | null
       identity: any
+      event: APIGatewayProxyEvent
     },
   ): any {
     switch (type) {
@@ -29,6 +31,8 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
         return options?.parseJson ? JSON.parse(body || '{}') : body
       case 'IDENTITY':
         return identity // TODO need to be resolved from authentication provider
+      case 'EVENT':
+        return event
     }
   }
 
@@ -67,6 +71,7 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
           query,
           body: event.body,
           identity: undefined,
+          event,
         }),
       )
 

@@ -1,0 +1,13 @@
+@import '~@reapit/elements/dist/index.css';
+
+pre {
+  width: 100%;
+  display: block;
+  background: lightgrey;
+  padding: 1rem 0.5rem;
+  margin: 0.5rem 0;
+}
+
+#__next {
+  height: 100%;
+}
