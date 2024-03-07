@@ -1,22 +1,15 @@
 import {
   Accordion,
   Badge,
-  FlexContainer,
   Label,
   Loader,
-  MainContainer,
-  NavResponsive,
-  NavStateProvider,
   PageContainer,
   PageHeader,
-  SecondaryNav,
-  SecondaryNavContainer,
-  SecondaryNavItem,
   Subtitle,
 } from '@reapit/elements'
 import React, { FC, useEffect, useState } from 'react'
-import Link from 'next/link'
 import { methodToIntent, statusCodeToIntent } from '../utils'
+import Link from 'next/link'
 
 const Profiler: FC<any> = () => {
   const [events, setEvents] = useState<any[]>([])
@@ -68,34 +61,27 @@ const Profiler: FC<any> = () => {
   )
 }
 
-export default () => (
-  <NavStateProvider>
-    <MainContainer>
-      <NavResponsive options={[]} />
-      <FlexContainer isFlexAuto>
-        <SecondaryNavContainer>
-          <SecondaryNav>
-            <SecondaryNavItem
-              active
-            >
-              <Link href="/profiler">Profiler</Link>
-            </SecondaryNavItem>
-            <SecondaryNavItem
-            >
-              <Link href="/profiler/routes">Routes</Link>
-            </SecondaryNavItem>
-          </SecondaryNav>
-        </SecondaryNavContainer>
-        <PageContainer className="el-hfull">
-          <PageHeader
-            pageTitle={{
-              children: 'Profiler',
-              hasBoldText: true,
-            }}
-          />
-          <Profiler />
-        </PageContainer>
-      </FlexContainer>
-    </MainContainer>
-  </NavStateProvider>
-)
+export default () => {
+  const [location, setLocation] = useState<string | undefined>()
+
+  useEffect(() => {
+    setLocation(window.location.host)
+  }, [])
+
+  return (
+    <PageContainer className="el-hfull">
+      <PageHeader
+        pageTitle={{
+          children: 'Profiler',
+          hasBoldText: true,
+        }}
+        pageInfo={[
+          {
+            children: <Link href={`http://${location}`}>http://{location}</Link>,
+          },
+        ]}
+      />
+      <Profiler />
+    </PageContainer>
+  )
+}

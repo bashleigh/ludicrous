@@ -72,35 +72,13 @@ const Routes: FC<any> = () => {
 }
 
 export default () => (
-  <NavStateProvider>
-    {/* <MediaStateProvider> */}
-    <MainContainer>
-      <NavResponsive options={[]} />
-      <FlexContainer isFlexAuto>
-        <SecondaryNavContainer>
-          <SecondaryNav>
-            <SecondaryNavItem
-              >
-              <Link href="/profiler">Profiler</Link>
-            </SecondaryNavItem>
-            <SecondaryNavItem
-              active
-            >
-              <Link href="/profiler/routes">Routes</Link>
-            </SecondaryNavItem>
-          </SecondaryNav>
-        </SecondaryNavContainer>
-        <PageContainer className="el-hfull">
-          <PageHeader
-            pageTitle={{
-              children: 'Routes',
-              hasBoldText: true,
-            }}
-          />
-          <Routes />
-        </PageContainer>
-      </FlexContainer>
-    </MainContainer>
-    {/* </MediaStateProvider> */}
-  </NavStateProvider>
+  <PageContainer className="el-hfull">
+    <PageHeader
+      pageTitle={{
+        children: 'Routes',
+        hasBoldText: true,
+      }}
+    />
+    <Routes />
+  </PageContainer>
 )
