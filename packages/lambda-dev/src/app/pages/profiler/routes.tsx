@@ -1,40 +1,6 @@
-import {
-  Accordion,
-  Badge,
-  FlexContainer,
-  Intent,
-  Label,
-  Loader,
-  MainContainer,
-  MediaStateProvider,
-  NavResponsive,
-  NavStateProvider,
-  PageContainer,
-  PageHeader,
-  SecondaryNav,
-  SecondaryNavContainer,
-  SecondaryNavItem,
-  Subtitle,
-  Title,
-} from '@reapit/elements'
-import Link from 'next/link'
+import { Badge, Loader, PageContainer, PageHeader } from '@reapit/elements'
 import React, { FC, useEffect, useState } from 'react'
-
-const methodToIntent = (method: string): Intent => {
-  switch (method) {
-    case 'GET':
-      return 'primary'
-    case 'POST':
-      return 'success'
-    case 'PUT':
-    case 'PATCH':
-      return 'low'
-    case 'DELETE':
-      return 'danger'
-    default:
-      return 'default'
-  }
-}
+import { methodToIntent } from '../../utils'
 
 const Routes: FC<any> = () => {
   const [routes, setRoutes] = useState<Object>({})

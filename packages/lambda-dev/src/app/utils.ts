@@ -1,4 +1,4 @@
-import { Intent } from "@reapit/elements"
+import { Intent } from '@reapit/elements'
 
 export const methodToIntent = (method: string): Intent => {
   switch (method) {

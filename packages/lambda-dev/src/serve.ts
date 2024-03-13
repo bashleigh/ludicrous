@@ -87,7 +87,9 @@ export const serve = async ({
               request.method?.toUpperCase() || '',
             )
 
-            profilerProvider.addEvent(mockEvent, route)
+            const controller = route ? application.get<any>(route.controllerToken) : undefined
+
+            profilerProvider.addEvent(mockEvent, route, controller)
           }
         }
 
