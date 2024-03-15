@@ -2,8 +2,9 @@ import { AbstractApplicationContainer } from '@reapit-ludicrous/framework'
 import { APIGatewayProxyEvent, Handler, Context } from 'aws-lambda'
 import { RouteMetadataContainer } from './route.metadata.container'
 import { ArgumentMetadata } from './decorators'
-import { HttpException, NotFoundException } from './exceptions'
+import { HTTP_STATUS_CODE, HttpException, NotFoundException } from './exceptions'
 import { ARGUMENT } from './constants'
+import { HttpMethod } from './types'
 
 export class HttpApplicationContainer extends AbstractApplicationContainer {
   private mapArgumentMetadataToValues(
@@ -52,15 +53,12 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
 
     const route = routeMetadata.resolvePathToRouteMetadata(path, event.httpMethod.toUpperCase())
 
-    console.log('route', route)
+    console.log('resolved route', route)
 
     try {
       if (!route) throw new NotFoundException()
 
       const controller = this.get<any>(route.controllerToken)
-
-      // TODO add route logging and use condition this.routeLogging
-      console.log('controller', controller[route.method])
 
       const argumentMetadata: ArgumentMetadata[] =
         Reflect.getMetadata(`${ARGUMENT}::${route.method.toString()}`, controller) || []
@@ -75,13 +73,14 @@ export class HttpApplicationContainer extends AbstractApplicationContainer {
         }),
       )
 
-      console.log('arguments', args)
-
-      // TODO call the controller method with the required parameters
       const result = await controller[route.method](...args)
 
       if (typeof result === 'object' && result.statusCode) return result
-      else return { statusCode: 200, body: result }
+      else return {
+        // TODO offer alternative to statusCode handling
+        statusCode: event.httpMethod === HttpMethod.POST ? HTTP_STATUS_CODE.CREATED : !result ? HTTP_STATUS_CODE.NO_CONTENT : HTTP_STATUS_CODE.OK,
+        body: typeof result === 'object' || Array.isArray(result) ? JSON.stringify(result) : result,
+      }
     } catch (error) {
       console.error(error)
       if (error instanceof HttpException) {

@@ -1,5 +1,5 @@
 {
-  "name": "lambda-dev",
+  "name": "@reapit-ludicrous/lambda-dev",
   "packageManager": "yarn@4.0.1",
   "dependencies": {
     "@reapit/elements": "^4.1.0",
