@@ -52,7 +52,6 @@ type RouteMetadata = {
 
 export class RouteMetadataContainer extends AbstractMetadataContainer<RouteMetadata> {
 
-
   addRoute(provider: constructor, method: string, httpMethod: string) {
     const controllerMetadata = Reflect.getMetadata(CONTROLLER, provider)
     const pathMetadata = Reflect.getOwnMetadata(PATH, provider.prototype[method])
@@ -87,7 +86,7 @@ class MyApplicationContainer extends AbstractApplicationContainer {
   }
 }
 
-// this would be within an project file
+// this would be within a project file
 @Controller('controller')
 class TestController {
   @Get('method')
